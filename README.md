@@ -1,4 +1,6 @@
-This is an experimental project used to verify various use cases of LLM based on LangChain, including chat, role-playing, and document-based QA.
+# LangChain LAB | [中文](README_ZH.md)
+
+This experiment will verify different use cases of LLM using LangChain, which include chat, role-playing, and document-based QA.
 
 ## Prerequisites
 
@@ -7,7 +9,7 @@ This is an experimental project used to verify various use cases of LLM based on
 
 ## Quick Guide
 
-Create a `.env` file in the root directory of the project and configure OpenAI's API Key and Model Name list in the file.
+Create a `.env` file in the project's root directory and input OpenAI's API Key and Model Name list in the file.
 
 ```text
 OPENAI_API_KEY=sk-xxx
@@ -34,23 +36,23 @@ streamlit run main.py
 
 ## Environmental Variables
 
-You can set more parameters through environment variables or the `.env` file.
+You can configure additional parameters either through environment variables or the `.env` file.
 
 **`DEFAULT_AI_PLATFORM` / `DEFAULT_AI_PLATFORM_SUPPORT`**
 
-You can set the supported platform through `DEFAULT_AI_PLATFORM_SUPPORT`, with the default value being `OpenAI`. You can set it to `FastChat,OpenAI` to enable calls to the FastChat platform. You can specify the default platform name from the list by using the `DEFAULT_AI_PLATFORM` parameter, with the default value being `OpenAI`.
+To set the supported platform, use the `DEFAULT_AI_PLATFORM_SUPPORT` variable. The default value is `OpenAI.` If you want to enable calls to the FastChat platform, you can set it to `FastChat, OpenAI`. To specify the default platform name from the list, use the `DEFAULT_AI_PLATFORM` parameter. The default value is `OpenAI.`
 
 **`OPENAI_API_BASE` / `OPENAI_API_KEY` / `OPENAI_API_MODEL_NAMES`**
 
-You can set the API KEY through `OPENAI_API_KEY`. Specify the call address by setting `OPENAI_API_BASE`. Set the optional model names through `OPENAI_API_MODEL_NAMES`, separated by commas. The default is `gpt-3.5-turbo-16k,gpt-4`. Of course, you can also choose not to set these parameters and set them on the page after startup.
+To set the API KEY, use the `OPENAI_API_KEY` variable. Specify the call address by setting the `OPENAI_API_BASE` variable. If desired, you can set optional model names by separating them with commas in the `OPENAI_API_MODEL_NAMES` variable. The default options are `gpt-3.5-turbo-16k,gpt-4`. Alternatively, you can choose not to set these parameters initially and configure them on the page later.
 
 **`FASTCHAT_API_BASE` / `FASTCHAT_API_KEY` / `FASTCHAT_API_MODEL_NAMES`**
 
-If you have enabled FastChat platform support through `DEFAULT_AI_PLATFORM_SUPPORT`, you can set the API KEY through `FASTCHAT_API_KEY`. Specify the call address by setting `FASTCHAT_API_BASE`. Set the optional model names through `FASTCHAT_API_MODEL_NAMES`. Just like the OpenAI parameters, you can also choose not to set these parameters and set them on the page after startup, but the `FASTCHAT_API_MODEL_NAMES` parameter must provide an optional model name.
+If you have enabled support for the FastChat platform using `DEFAULT_AI_PLATFORM_SUPPORT`, you can set the API KEY using `FASTCHAT_API_KEY`. Specify the call address by setting `FASTCHAT_API_BASE`. Similarly, you can set optional model names using `FASTCHAT_API_MODEL_NAMES`. Just like the OpenAI parameters, you have the option to configure these parameters on the page later. However, please note that the `FASTCHAT_API_MODEL_NAMES` parameter must provide an optional model name.
 
 **`HUGGINGFACE_CATCH_PATH`**
 
-Set the huggingface cache directory, with the default value being `./huggingface`. When you choose a non-OpenAI API, you can choose to use the EMBED models of huggingface. These models will be downloaded to this cache directory after the first selection. The currently available models are as follows:
+To set the hugging face cache directory, use `HUGGINGFACE_CATCH_PATH`. The default value is `./huggingface`. When using a non-OpenAI API, you can utilize the EMBED huggingface models. After the initial selection, these models will be downloaded to the cache directory. The currently available models are as follows:
 
 * moka-ai/m3e-base
 * sentence-transformers/msmarco-distilbert-base-v4
