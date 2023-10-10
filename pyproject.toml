@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "langchain-lab"
+version = "0.1.0"
+description = ""
+authors = ["Lei Zhang <zhanglei@apache.org>"]
+license = "Apache License 2.0"
+readme = "README.md"
+packages = [{ include = "langchain_lab", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+#torch = { version = "2.0.1+cpu", source = "pytorch", markers = "sys_platform == 'linux'" }
+#torchvision = { version = "0.15.2+cpu", source = "pytorch", markers = "sys_platform == 'linux'" }
+streamlit = "^1.27.0"
+langchain = "^0.0.301"
+faiss-cpu = "^1.7.4"
+openai = "^0.28.0"
+pandas = "^2.1.0"
+python-dotenv = "^1.0.0"
+docx2txt = "^0.8"
+pymupdf = "^1.23.3"
+tiktoken = "^0.4.0"
+sentence-transformers = "^2.2.2"
+langdetect = "^1.0.9"
+chardet = "^5.2.0"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.poetry.group.lint.dependencies]
+isort = "^5.12.0"
+black = { version = "^23.1a1", allow-prereleases = true }
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 180
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple"
+priority = "primary"
