@@ -15,6 +15,7 @@
 from datetime import datetime
 
 import streamlit as st
+from langchain.document_loaders import WebBaseLoader
 
 from langchain_lab import logger
 from langchain_lab.scenarios.error import display_error
@@ -98,6 +99,10 @@ def init_document_scenario():
             load_btn = st.form_submit_button("Load Documents")
         if load_btn:
             print(url_input)
+            loader = WebBaseLoader(url_input)
+            data = loader.load()
+            splits = text_splitter.split_documents(data)
+            st.write(splits)
             # chunked_file = splitting_file(file, st.session_state["CHUNK_SIZE"], st.session_state["CHUNK_OVERLAP"])
             # indexing_documents(
             #     file.name,

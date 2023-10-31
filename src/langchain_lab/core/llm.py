@@ -11,10 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import json
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
+import requests
 import streamlit as st
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chat_models import ChatOpenAI
@@ -138,3 +139,22 @@ def is_open_ai_key_valid(openai_api_base, openai_api_key, model_name) -> bool:
         logger.error(f"{e.__class__.__name__}: {e}")
         return False
     return True
+
+
+def load_llm_chat_models(api_url: str, api_key: str) -> List[str]:
+    try:
+        headers = {
+            'Authorization': f'Bearer {api_key}'
+        }
+        response = requests.get(f'{api_url}/models', headers=headers)
+        print(json.dumps(response.json()))
+        model_id_list = [obj['id'] for obj in response.json()['data']]
+        # 如果是 openai 模型，需要过滤掉非 chat 模型
+        filtered_models = [s for s in model_id_list if s.startswith('gpt-')]
+        if len(filtered_models) == 0:
+            filtered_models = model_id_list
+        return sorted(filtered_models)
+    except Exception as e:
+        st.error(f'Failed to load models from {api_url}')
+        logger.error(f"{e.__class__.__name__}: {e}")
+        return []

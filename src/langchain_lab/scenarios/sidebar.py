@@ -21,13 +21,12 @@ from langchain_lab import logger
 from langchain_lab.core.translate import LANGUAGES
 from src.langchain_lab.core.embedding import embedding_init
 from src.langchain_lab.core.huggingface import download_hugging_face_model
-from src.langchain_lab.core.llm import TrackerCallbackHandler, llm_init
+from src.langchain_lab.core.llm import TrackerCallbackHandler, llm_init, load_llm_chat_models
 
 AI_PLATFORM = {
     "OpenAI": {
         "api_url": os.environ.get("OPENAI_API_BASE", ""),
         "api_key": os.environ.get("OPENAI_API_KEY", ""),
-        "llm": os.environ.get("OPENAI_API_MODEL_NAMES", "gpt-3.5-turbo-16k,gpt-4").split(","),
         "embedding": {
             "provider": "openai",
             "model": ["text-embedding-ada-002"],
@@ -37,7 +36,6 @@ AI_PLATFORM = {
     "FastChat": {
         "api_url": os.environ.get("FASTCHAT_API_BASE", ""),
         "api_key": os.environ.get("FASTCHAT_API_KEY", ""),
-        "llm": os.environ.get("FASTCHAT_API_MODEL_NAMES", "vicuna-13b-v1.5-vllm").split(","),
         "embedding": {
             "provider": "huggingface",
             "model": [
@@ -110,8 +108,10 @@ def left_sidebar():
             st.session_state["API_URL"] = api_url_input
             st.session_state["API_KEY"] = api_key_input
 
+            model_names = load_llm_chat_models(api_url_input, api_key_input)
+
             # LLM Settings
-            api_model_name = st.selectbox("CHAT MODEL", AI_PLATFORM[ai_platform]["llm"])
+            api_model_name = st.selectbox("CHAT MODEL", model_names)
             api_temperature = st.slider("Temperature", min_value=0.0, max_value=2.0, value=0.0, step=0.1)
             st.session_state["API_MODEL_NAME"] = api_model_name
             st.session_state["API_TEMPERATURE"] = api_temperature
@@ -151,7 +151,10 @@ def left_sidebar():
                         st.session_state["CHAT_MEMORY_CLEAN"] = chat_memory_clean
 
             with st.expander("ROLE", expanded=True):
-                st.text_area("PROMPT", key="CHAT_ROLE_PROMPT", height=200, placeholder="Enter a prompt word related to the role", on_change=chat_role_prompt_on_change())
+                st.text_area("PROMPT", key="CHAT_ROLE_PROMPT", height=200,
+                             placeholder="Enter a prompt word related to the role",
+                             on_change=chat_role_prompt_on_change())
+                st.info("chat history placeholder is {chat_history}")
 
         elif scenario == "DOCUMENT":
             with st.expander("CHAIN", expanded=True):

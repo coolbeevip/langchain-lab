@@ -24,16 +24,8 @@ from src.langchain_lab.core.llm import TrackerCallbackHandler
 default_system_message = """You are a nice chatbot having a conversation with a human.
 """
 
-history_message_template = """
-Previous conversation:
-----------------------------------------
-{chat_history}
-----------------------------------------
-"""
-
-human_message_template = """
-New human question: {question}
-Response:"""
+human_message_template = """{question}
+AI:"""
 
 
 def chat(
@@ -49,10 +41,11 @@ def chat(
     if chat_history is not None:
         human_message_prompt = HumanMessagePromptTemplate.from_template(human_message_template)
         if len(chat_history) > 0:
-            chat_history_string = "\n".join(chat_history)
+            chat_history_string = "\n".join([message + '\n' if i % 2 == 1 else message for i, message in enumerate(chat_history)])
         else:
             chat_history_string = ""
-        system_message_prompt = SystemMessage(content=system_message + history_message_template.format(chat_history=chat_history_string))
+        system_message_prompt = SystemMessage(
+            content=system_message.format(chat_history=chat_history_string))
     else:
         template = "{question}"
         system_message_prompt = SystemMessage(content=system_message)

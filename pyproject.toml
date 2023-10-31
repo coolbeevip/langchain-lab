@@ -23,6 +23,7 @@ tiktoken = "^0.4.0"
 sentence-transformers = "^2.2.2"
 langdetect = "^1.0.9"
 chardet = "^5.2.0"
+beautifulsoup4 = "^4.12.2"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
