@@ -121,6 +121,8 @@ def llm_init(openai_api_base, openai_api_key, model_name, temperature, stream_ap
             callbacks=[st.session_state["DEBUG_CALLBACK"]],
         )
         st.session_state["LLM"] = llm
+    else:
+        del st.session_state["LLM"]
 
 
 def is_open_ai_key_valid(openai_api_base, openai_api_key, model_name) -> bool:

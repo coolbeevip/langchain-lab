@@ -93,11 +93,6 @@ def load_embedding(embedding_provider, model_kwargs):
     )
 
 
-def chat_role_prompt_on_change():
-    st.session_state["CHAT_PROMPT_TEMPLATE"] = st.session_state.get("SYSTEM_PROMPT", "")
-    st.session_state['SYSTEM_PROMPT_INITIALIZED'] = False
-    # chat_scenario(query="", message_placeholder=None, chat_history=None, chat_stream_api=True, chat_memory_deep=None)
-
 
 def left_sidebar():
     if "DEBUG_CALLBACK" not in st.session_state:
@@ -153,7 +148,7 @@ def left_sidebar():
             if "LLM" in st.session_state:
                 st.info(f"Initialized LLM with model_name={api_model_name}, temperature={api_temperature}")
             else:
-                st.button("Refresh")
+                st.button("REFRESH")
 
         # Debug Settings
         api_debug = st.toggle("DEBUG")
@@ -182,7 +177,8 @@ def left_sidebar():
                 st.text_area("SYSTEM PROMPT", key="SYSTEM_PROMPT", height=200,
                              placeholder="Enter a prompt word related to the role")
                 if st.button("CONFIRM"):
-                    chat_role_prompt_on_change()
+                    st.session_state.chat_messages = []
+                    st.session_state["CHAT_PROMPT_TEMPLATE"] = st.session_state.get("SYSTEM_PROMPT", "")
                     st.success("System prompt confirmed")
 
                 st.info("chat history placeholder is {chat_history}")
