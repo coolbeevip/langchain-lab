@@ -40,8 +40,14 @@ def chat(
 
     if chat_history is not None:
         human_message_prompt = HumanMessagePromptTemplate.from_template(human_message_template)
+
+        # Append chat history to system message if chat history is not empty
+        if '{chat_history}' not in system_message:
+            system_message = system_message + "\n{chat_history}"
+
         if len(chat_history) > 0:
-            chat_history_string = "\n".join([message + '\n' if i % 2 == 1 else message for i, message in enumerate(chat_history)])
+            # chat_history_string = "\n".join([message + '\n' if i % 2 == 1 else message for i, message in enumerate(chat_history)])
+            chat_history_string = "\n".join(chat_history)
         else:
             chat_history_string = ""
         system_message_prompt = SystemMessage(

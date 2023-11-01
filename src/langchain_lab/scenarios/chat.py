@@ -36,14 +36,15 @@ def init_chat_scenario(
     if "CHAT_PROMPT_TEMPLATE" in st.session_state:
         prompt_string = st.session_state["CHAT_PROMPT_TEMPLATE"]
         if len(prompt_string.strip()) > 0:
-            # prompt_string = prompt_string.replace("-", "\\-").replace("\n", "\n\n").replace("{", "\\{").replace("}", "\\}")
-            prompt_placeholder.info(f"{prompt_string[:50-3]}...")
+            # prompt_string = (prompt_string
+            #                  .replace("-", "\\-")
+            #                  .replace("\n", "\n\n")
+            #                  .replace("{", "\\{")
+            #                  .replace("}", "\\}"))
+            prompt_placeholder.info(f"{prompt_string[:50 - 3]}...")
 
     # Initialize chat history
     if "chat_messages" not in st.session_state:
-        st.session_state.chat_messages = []
-
-    if st.session_state["CHAT_MEMORY_CLEAN"] or not chat_memory_enabled:
         st.session_state.chat_messages = []
 
     # Display chat messages from history on app rerun
@@ -58,14 +59,17 @@ def init_chat_scenario(
         chat_history = None
         if chat_memory_enabled:
             if chat_memory_history_type == "ALL":
-                chat_history = [f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in st.session_state.chat_messages]
+                chat_history = [f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in
+                                st.session_state.chat_messages]
             elif chat_memory_history_type == "HUMAN":
                 chat_history = [
-                    f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in st.session_state.chat_messages if message["role"] == "user"
+                    f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in
+                    st.session_state.chat_messages if message["role"] == "user"
                 ]
             elif chat_memory_history_type == "AI":
                 chat_history = [
-                    f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in st.session_state.chat_messages if message["role"] == "assistant"
+                    f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in
+                    st.session_state.chat_messages if message["role"] == "assistant"
                 ]
 
         with st.chat_message(name="assistant", avatar="🤖"):
@@ -78,7 +82,7 @@ def init_chat_scenario(
                     query=prompt,
                     callback=st.session_state["DEBUG_CALLBACK"],
                     llm=st.session_state["LLM"],
-                    system_message=st.session_state["CHAT_PROMPT_TEMPLATE"],
+                    system_message=st.session_state.get("CHAT_PROMPT_TEMPLATE", ""),
                     chat_history=chat_history,
                 )
                 for chunk in response.split("\n"):
@@ -97,5 +101,9 @@ def init_chat_scenario(
                     st.session_state.chat_messages = st.session_state.chat_messages[-chat_memory_history_deep:]
             finally:
                 st.session_state["DEBUG_CALLBACK"].clean_message_placeholder()
+
+    # if st.session_state["CHAT_MEMORY_CLEAN"] or not chat_memory_enabled:
+    #     st.session_state.chat_messages = []
+
     if st.session_state["LANGCHAIN_DEBUG"]:
         show_debug(st, st.session_state["DEBUG_CALLBACK"].get_tracks())

@@ -46,6 +46,19 @@ AI_PLATFORM = {
             "model_kwargs": {"device": "cpu"},
         },
     },
+    "LMStudio": {
+        "api_url": os.environ.get("LMSTUDIO_API_BASE", ""),
+        "api_key": os.environ.get("LMSTUDIO_API_KEY", ""),
+        "embedding": {
+            "provider": "huggingface",
+            "model": [
+                "moka-ai/m3e-base",
+                "sentence-transformers/msmarco-distilbert-base-v4",
+                "shibing624/text2vec-base-chinese",
+            ],
+            "model_kwargs": {"device": "cpu"},
+        },
+    },
 }
 
 
@@ -68,7 +81,7 @@ def load_embedding(embedding_provider, model_kwargs):
 
 
 def chat_role_prompt_on_change():
-    st.session_state["CHAT_PROMPT_TEMPLATE"] = st.session_state.get("CHAT_ROLE_PROMPT", "")
+    st.session_state["CHAT_PROMPT_TEMPLATE"] = st.session_state.get("SYSTEM_PROMPT", "")
 
 
 def left_sidebar():
@@ -147,13 +160,16 @@ def left_sidebar():
                             ("ALL", "HUMAN", "AI"),
                         )
                         st.session_state["CHAT_MEMORY_HISTORY_TYPE"] = chat_memory_history_type
-                        chat_memory_clean = st.button("REST CHAT HISTORY")
-                        st.session_state["CHAT_MEMORY_CLEAN"] = chat_memory_clean
+                        if st.button("NEW SESSION"):
+                            st.session_state.chat_messages = []
 
             with st.expander("ROLE", expanded=True):
-                st.text_area("PROMPT", key="CHAT_ROLE_PROMPT", height=200,
-                             placeholder="Enter a prompt word related to the role",
-                             on_change=chat_role_prompt_on_change())
+                st.text_area("SYSTEM PROMPT", key="SYSTEM_PROMPT", height=200,
+                             placeholder="Enter a prompt word related to the role")
+                if st.button("CONFIRM"):
+                    chat_role_prompt_on_change()
+                    st.success("System prompt confirmed")
+
                 st.info("chat history placeholder is {chat_history}")
 
         elif scenario == "DOCUMENT":
