@@ -59,6 +59,19 @@ AI_PLATFORM = {
             "model_kwargs": {"device": "cpu"},
         },
     },
+    "BaiChuan": {
+        "api_url": os.environ.get("BAICHUAN_API_BASE", ""),
+        "api_key": os.environ.get("BAICHUAN_API_KEY", ""),
+        "embedding": {
+            "provider": "huggingface",
+            "model": [
+                "moka-ai/m3e-base",
+                "sentence-transformers/msmarco-distilbert-base-v4",
+                "shibing624/text2vec-base-chinese",
+            ],
+            "model_kwargs": {"device": "cpu"},
+        },
+    },
 }
 
 
@@ -82,6 +95,8 @@ def load_embedding(embedding_provider, model_kwargs):
 
 def chat_role_prompt_on_change():
     st.session_state["CHAT_PROMPT_TEMPLATE"] = st.session_state.get("SYSTEM_PROMPT", "")
+    st.session_state['SYSTEM_PROMPT_INITIALIZED'] = False
+    # chat_scenario(query="", message_placeholder=None, chat_history=None, chat_stream_api=True, chat_memory_deep=None)
 
 
 def left_sidebar():
