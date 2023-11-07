@@ -14,7 +14,7 @@
 
 from typing import List
 
-from langchain import LLMChain
+from langchain import LLMChain, PromptTemplate
 from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import SystemMessage
@@ -25,7 +25,15 @@ default_system_message = """You are a nice chatbot having a conversation with a 
 """
 
 human_message_template = """{question}
-AI:"""
+ASSISTANT:"""
+
+def chat_once(query: str, llm: BaseChatModel, prompt: PromptTemplate, callback: TrackerCallbackHandler = None):
+    chain = LLMChain(
+        llm=llm,
+        prompt=prompt,
+        callbacks=[callback],
+    )
+    return chain.run(query)
 
 
 def chat(

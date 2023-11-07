@@ -14,9 +14,10 @@
 from typing import List
 
 import streamlit as st
+from langchain import PromptTemplate
 
 from langchain_lab import logger
-from src.langchain_lab.core.chat import chat
+from src.langchain_lab.core.chat import chat, chat_once
 from src.langchain_lab.scenarios.debug import show_debug
 
 
@@ -45,17 +46,29 @@ def chat_scenario(query: str, message_placeholder, chat_history: List[str] = Non
         st.session_state.chat_messages = st.session_state.chat_messages[-chat_memory_history_deep:]
 
 
+def summarize_human_questions_by_chat_history(chat_history: List[str] = None) -> str:
+    prompt_template = """请根据以下对话,一句话整理Human提供的信息:
+    "{text}"
+    """
+    prompt = PromptTemplate.from_template(prompt_template)
+    response = chat_once(
+        query="\n".join(chat_history),
+        callback=st.session_state["DEBUG_CALLBACK"],
+        llm=st.session_state["LLM"],
+        prompt=prompt
+    )
+    return response
+
+
 def init_chat_scenario(
     chat_memory_enabled: bool = False,
     chat_memory_history_deep: int = 20,
-    chat_memory_history_type: str = None,
     chat_stream_api: bool = False,
 ):
     logger.info(
-        "Initializing chat scenario with memory={memory} deep={deep} type={type}".format(
+        "Initializing chat scenario with memory={memory} deep={deep}".format(
             memory=chat_memory_enabled,
             deep=chat_memory_history_deep,
-            type=chat_memory_history_type,
         )
     )
     prompt_placeholder = st.empty()
@@ -85,19 +98,9 @@ def init_chat_scenario(
             st.markdown(prompt)
         chat_history = None
         if chat_memory_enabled:
-            if chat_memory_history_type == "ALL":
-                chat_history = [f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in
-                                st.session_state.chat_messages]
-            elif chat_memory_history_type == "HUMAN":
-                chat_history = [
-                    f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in
-                    st.session_state.chat_messages if message["role"] == "user"
-                ]
-            elif chat_memory_history_type == "AI":
-                chat_history = [
-                    f"{'Human' if message['role'] == 'user' else 'AI'}: {message['content']}" for message in
-                    st.session_state.chat_messages if message["role"] == "assistant"
-                ]
+            chat_history = [f"{'USER' if message['role'] == 'user' else 'ASSISTANT'}: {message['content']}" for message
+                            in
+                            st.session_state.chat_messages]
 
         with st.chat_message(name="assistant", avatar="🤖"):
             message_placeholder = st.empty()
@@ -105,6 +108,9 @@ def init_chat_scenario(
             st.session_state["DEBUG_CALLBACK"].init_message_placeholder(message_placeholder)
             try:
                 chat_scenario(prompt, message_placeholder, chat_history, chat_stream_api, chat_memory_history_deep)
+                # final_human_question = summarize_human_questions_by_chat_history([f"{'Human' if message['role'] == 'user' else 'ASSISTANT'}: {message['content']}" for message in
+                #                 st.session_state.chat_messages])
+                # print(final_human_question)
             finally:
                 st.session_state["DEBUG_CALLBACK"].clean_message_placeholder()
 

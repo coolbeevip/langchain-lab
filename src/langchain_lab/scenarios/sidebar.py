@@ -93,7 +93,6 @@ def load_embedding(embedding_provider, model_kwargs):
     )
 
 
-
 def left_sidebar():
     if "DEBUG_CALLBACK" not in st.session_state:
         st.session_state["DEBUG_CALLBACK"] = TrackerCallbackHandler(st)
@@ -144,9 +143,14 @@ def left_sidebar():
             st.session_state["STREAM_API"] = stream_api
 
             # Initialize LLM
-            llm_init(api_url_input, api_key_input, api_model_name, api_temperature, stream_api)
+            llm = llm_init(api_url_input, api_key_input, api_model_name, api_temperature, stream_api)
+            if llm is None:
+                del st.session_state["LLM"]
+            else:
+                st.session_state["LLM"] = llm
+
             if "LLM" in st.session_state:
-                st.info(f"Initialized LLM with model_name={api_model_name}, temperature={api_temperature}")
+                st.info(f"Initialized LLM with model_name={llm.model_name}, temperature={api_temperature}")
             else:
                 st.button("REFRESH")
 
@@ -165,11 +169,6 @@ def left_sidebar():
                     if st.session_state["CHAT_MEMORY_ENABLED"]:
                         chat_memory_history_deep = st.slider("HISTORY DEEP", 20, 100, 20)
                         st.session_state["CHAT_MEMORY_HISTORY_DEEP"] = chat_memory_history_deep
-                        chat_memory_history_type = st.selectbox(
-                            "HISTORY TYPE",
-                            ("ALL", "HUMAN", "AI"),
-                        )
-                        st.session_state["CHAT_MEMORY_HISTORY_TYPE"] = chat_memory_history_type
                         if st.button("NEW SESSION"):
                             st.session_state.chat_messages = []
 

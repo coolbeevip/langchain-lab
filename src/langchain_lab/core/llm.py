@@ -19,6 +19,7 @@ import requests
 import streamlit as st
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chat_models import ChatOpenAI
+from langchain.chat_models.base import BaseChatModel
 from langchain.schema import LLMResult
 from openai import ChatCompletion
 
@@ -109,7 +110,7 @@ class TrackerCallbackHandler(BaseCallbackHandler):
 
 
 @st.cache_resource()
-def llm_init(openai_api_base, openai_api_key, model_name, temperature, stream_api):
+def llm_init(openai_api_base, openai_api_key, model_name, temperature, stream_api) -> BaseChatModel:
     if is_open_ai_key_valid(openai_api_base, openai_api_key, model_name):
         llm = ChatOpenAI(
             model_name=model_name,
@@ -120,9 +121,9 @@ def llm_init(openai_api_base, openai_api_key, model_name, temperature, stream_ap
             streaming=stream_api,
             callbacks=[st.session_state["DEBUG_CALLBACK"]],
         )
-        st.session_state["LLM"] = llm
+        return llm
     else:
-        del st.session_state["LLM"]
+        return None
 
 
 def is_open_ai_key_valid(openai_api_base, openai_api_key, model_name) -> bool:
