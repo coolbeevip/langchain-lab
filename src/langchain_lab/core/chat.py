@@ -16,16 +16,16 @@ from typing import List
 
 from langchain import LLMChain, PromptTemplate
 from langchain.chat_models.base import BaseChatModel
-from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+from langchain.prompts import HumanMessagePromptTemplate
 from langchain.schema import SystemMessage
 
+from langchain_lab.core.conversation import get_conversation_prompt, get_conversation_human_message_template
+from langchain_lab.core.prompts.chat import CustomChatPromptTemplate
 from src.langchain_lab.core.llm import TrackerCallbackHandler
 
 default_system_message = """You are a nice chatbot having a conversation with a human.
 """
 
-human_message_template = """{question}
-ASSISTANT:"""
 
 def chat_once(query: str, llm: BaseChatModel, prompt: PromptTemplate, callback: TrackerCallbackHandler = None):
     chain = LLMChain(
@@ -47,15 +47,14 @@ def chat(
         system_message = default_system_message
 
     if chat_history is not None:
-        human_message_prompt = HumanMessagePromptTemplate.from_template(human_message_template)
+        human_message_prompt = HumanMessagePromptTemplate.from_template(
+            get_conversation_human_message_template(name=llm.model_name))
 
         # Append chat history to system message if chat history is not empty
         if '{chat_history}' not in system_message:
             system_message = system_message + "\n{chat_history}"
-
         if len(chat_history) > 0:
-            # chat_history_string = "\n".join([message + '\n' if i % 2 == 1 else message for i, message in enumerate(chat_history)])
-            chat_history_string = "\n".join(chat_history)
+            chat_history_string = get_conversation_prompt(name=llm.model_name, chat_history=chat_history)
         else:
             chat_history_string = ""
         system_message_prompt = SystemMessage(
@@ -66,7 +65,9 @@ def chat(
         human_message_prompt = HumanMessagePromptTemplate.from_template(template)
 
     inputs = {"question": query}
-    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+    CustomChatPromptTemplate.llm = llm
+    chat_prompt = CustomChatPromptTemplate.from_messages(llm=llm,
+                                                         messages=[system_message_prompt, human_message_prompt])
 
     chain = LLMChain(
         llm=llm,

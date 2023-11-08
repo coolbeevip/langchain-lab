@@ -63,7 +63,7 @@ class TrackerCallbackHandler(BaseCallbackHandler):
     def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
         """Run on new LLM token. Only available when streaming is enabled."""
         if self.message_placeholder:
-            print(token)
+            # print(token)
             self.message_placeholder_message += f"{token}"
             self.message_placeholder.markdown(f"{self.message_placeholder_message}", unsafe_allow_html=True)
 

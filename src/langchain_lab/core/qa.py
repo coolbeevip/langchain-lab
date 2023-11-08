@@ -18,9 +18,9 @@ from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.chat_models.base import BaseChatModel
 from langchain.docstore.document import Document
 
+from langchain_lab.core.prompts.stuff import STUFF_PROMPT
 from src.langchain_lab.core.embedding import FolderIndex
 from src.langchain_lab.core.llm import TrackerCallbackHandler, TrackItem
-from src.langchain_lab.core.prompts import STUFF_PROMPT
 
 
 class AnswerWithSources:

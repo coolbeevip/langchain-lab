@@ -108,9 +108,6 @@ def init_chat_scenario(
             st.session_state["DEBUG_CALLBACK"].init_message_placeholder(message_placeholder)
             try:
                 chat_scenario(prompt, message_placeholder, chat_history, chat_stream_api, chat_memory_history_deep)
-                # final_human_question = summarize_human_questions_by_chat_history([f"{'Human' if message['role'] == 'user' else 'ASSISTANT'}: {message['content']}" for message in
-                #                 st.session_state.chat_messages])
-                # print(final_human_question)
             finally:
                 st.session_state["DEBUG_CALLBACK"].clean_message_placeholder()
 

@@ -134,7 +134,7 @@ def left_sidebar():
 
             # LLM Settings
             api_model_name = st.selectbox("CHAT MODEL", model_names)
-            api_temperature = st.slider("Temperature", min_value=0.0, max_value=2.0, value=0.0, step=0.1)
+            api_temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1)
             st.session_state["API_MODEL_NAME"] = api_model_name
             st.session_state["API_TEMPERATURE"] = api_temperature
 
@@ -150,7 +150,7 @@ def left_sidebar():
                 st.session_state["LLM"] = llm
 
             if "LLM" in st.session_state:
-                st.info(f"Initialized LLM with model_name={llm.model_name}, temperature={api_temperature}")
+                st.info(f"Initialized LLM with model_name={llm.model_name}, temperature={llm.temperature}")
             else:
                 st.button("REFRESH")
 
