@@ -117,7 +117,7 @@ def llm_init(openai_api_base, openai_api_key, model_name, temperature, stream_ap
             openai_api_base=openai_api_base,
             openai_api_key=openai_api_key,
             temperature=temperature,
-            request_timeout=300,
+            request_timeout=600,
             streaming=stream_api,
             callbacks=[st.session_state["DEBUG_CALLBACK"]],
         )
