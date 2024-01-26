@@ -25,7 +25,7 @@ make install
 Run the project.
 
 ```shell
-streamlit run main.py
+make run
 ```
 
 ## Screenshot

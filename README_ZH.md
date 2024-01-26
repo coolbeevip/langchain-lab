@@ -25,7 +25,7 @@ make install
 运行项目，执行以下命令后会在浏览器中自动打开界面
 
 ```shell
-streamlit run main.py
+make run
 ```
 
 ## Screenshot
