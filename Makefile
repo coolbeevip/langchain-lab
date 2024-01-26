@@ -1,5 +1,3 @@
-
-
 lint:
 	@poetry run black src
 	@poetry run isort --profile black src

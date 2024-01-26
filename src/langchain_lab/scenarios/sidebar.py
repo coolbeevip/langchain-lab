@@ -21,7 +21,11 @@ from langchain_lab import logger
 from langchain_lab.core.translate import LANGUAGES
 from src.langchain_lab.core.embedding import embedding_init
 from src.langchain_lab.core.huggingface import download_hugging_face_model
-from src.langchain_lab.core.llm import TrackerCallbackHandler, llm_init, load_llm_chat_models
+from src.langchain_lab.core.llm import (
+    TrackerCallbackHandler,
+    llm_init,
+    load_llm_chat_models,
+)
 
 AI_PLATFORM = {
     "OpenAI": {
@@ -173,8 +177,7 @@ def left_sidebar():
                             st.session_state.chat_messages = []
 
             with st.expander("ROLE", expanded=True):
-                st.text_area("SYSTEM PROMPT", key="SYSTEM_PROMPT", height=200,
-                             placeholder="Enter a prompt word related to the role")
+                st.text_area("SYSTEM PROMPT", key="SYSTEM_PROMPT", height=200, placeholder="Enter a prompt word related to the role")
                 if st.button("CONFIRM"):
                     st.session_state.chat_messages = []
                     st.session_state["CHAT_PROMPT_TEMPLATE"] = st.session_state.get("SYSTEM_PROMPT", "")

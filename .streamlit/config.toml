@@ -1,6 +1,6 @@
 [server]
 port = 8501
-serverAddress = '0.0.0.0'
+address = '0.0.0.0'
 
 # Due to conflicts between CORS and XSRF, if `server.enableXsrfProtection` is
 # on and `server.enableCORS` is off at the same time, we will prioritize

@@ -8,18 +8,16 @@ readme = "README.md"
 packages = [{ include = "langchain_lab", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-#torch = { version = "2.0.1+cpu", source = "pytorch", markers = "sys_platform == 'linux'" }
-#torchvision = { version = "0.15.2+cpu", source = "pytorch", markers = "sys_platform == 'linux'" }
+python = "^3.11"
 streamlit = "^1.27.0"
-langchain = "^0.0.301"
+langchain = "0.1.4"
+langchain-openai = "0.0.5"
+langchain-experimental = "0.0.49"
 faiss-cpu = "^1.7.4"
-openai = "^0.28.0"
 pandas = "^2.1.0"
 python-dotenv = "^1.0.0"
 docx2txt = "^0.8"
 pymupdf = "^1.23.3"
-tiktoken = "^0.4.0"
 sentence-transformers = "^2.2.2"
 langdetect = "^1.0.9"
 chardet = "^5.2.0"

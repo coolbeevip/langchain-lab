@@ -18,10 +18,10 @@ from typing import Any, Dict, List, Union
 import requests
 import streamlit as st
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain.chat_models import ChatOpenAI
 from langchain.chat_models.base import BaseChatModel
 from langchain.schema import LLMResult
-from openai import ChatCompletion
+from langchain_community.chat_models import ChatOpenAI
+from openai import OpenAI
 
 from langchain_lab import logger
 
@@ -71,9 +71,9 @@ class TrackerCallbackHandler(BaseCallbackHandler):
         run_id = str(kwargs["run_id"])
         if response.llm_output:
             token_usage = response.llm_output["token_usage"]
-            prompt_tokens = (token_usage.prompt_tokens,)
-            completion_tokens = (token_usage.completion_tokens,)
-            total_tokens = (token_usage.total_tokens,)
+            prompt_tokens = (token_usage["prompt_tokens"],)
+            completion_tokens = (token_usage["completion_tokens"],)
+            total_tokens = (token_usage["total_tokens"],)
             token_usage_info = f"💰{prompt_tokens[0]} + 💰 {completion_tokens[0]} = 💰 {total_tokens[0]}"
         else:
             # https://community.openai.com/t/openai-api-get-usage-tokens-in-response-when-set-stream-true/141866/12
@@ -131,11 +131,13 @@ def is_open_ai_key_valid(openai_api_base, openai_api_key, model_name) -> bool:
         st.error("Please enter your OpenAI API key in the sidebar and click Refresh!")
         return False
     try:
-        ChatCompletion.create(
+        client = OpenAI(
+            base_url=openai_api_base,
+            api_key=openai_api_key,
+        )
+        client.chat.completions.create(
             model=model_name,
             messages=[{"role": "user", "content": "test"}],
-            api_base=openai_api_base,
-            api_key=openai_api_key,
         )
     except Exception as e:
         st.error(e)
@@ -146,18 +148,16 @@ def is_open_ai_key_valid(openai_api_base, openai_api_key, model_name) -> bool:
 
 def load_llm_chat_models(api_url: str, api_key: str) -> List[str]:
     try:
-        headers = {
-            'Authorization': f'Bearer {api_key}'
-        }
-        response = requests.get(f'{api_url}/models', headers=headers)
+        headers = {"Authorization": f"Bearer {api_key}"}
+        response = requests.get(f"{api_url}/models", headers=headers)
         print(json.dumps(response.json()))
-        model_id_list = [obj['id'] for obj in response.json()['data']]
+        model_id_list = [obj["id"] for obj in response.json()["data"]]
         # 如果是 openai 模型，需要过滤掉非 chat 模型
-        filtered_models = [s for s in model_id_list if s.startswith('gpt-')]
+        filtered_models = [s for s in model_id_list if s.startswith("gpt-")]
         if len(filtered_models) == 0:
             filtered_models = model_id_list
         return sorted(filtered_models)
     except Exception as e:
-        st.error(f'Failed to load models from {api_url}')
+        st.error(f"Failed to load models from {api_url}")
         logger.error(f"{e.__class__.__name__}: {e}")
         return []

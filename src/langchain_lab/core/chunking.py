@@ -20,7 +20,6 @@ from src.langchain_lab.core.parsing import File
 
 
 class Chunking(ABC):
-
     def __init__(self, chunk_size: int, chunk_overlap: int = 0, model_name="gpt-3.5-turbo"):
         self.splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             model_name=model_name,

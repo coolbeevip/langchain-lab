@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from langchain import LLMChain, PromptTemplate
+from langchain.chains import LLMChain
 from langchain.chat_models.base import BaseChatModel
+from langchain.prompts import PromptTemplate
 from langdetect import detect
 
 from langchain_lab import logger
@@ -69,5 +70,4 @@ def translate(
             prompt=translate_prompt,
             callbacks=[callback],
         )
-        response = chain.run(inputs)
-        return response
+        return chain.invoke(inputs)["text"]

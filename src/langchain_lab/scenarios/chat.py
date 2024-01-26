@@ -14,15 +14,14 @@
 from typing import List
 
 import streamlit as st
-from langchain import PromptTemplate
+from langchain.prompts import PromptTemplate
 
 from langchain_lab import logger
 from src.langchain_lab.core.chat import chat, chat_once
 from src.langchain_lab.scenarios.debug import show_debug
 
 
-def chat_scenario(query: str, message_placeholder, chat_history: List[str] = None, chat_stream_api: bool = False,
-                  chat_memory_history_deep: int = 20):
+def chat_scenario(query: str, message_placeholder, chat_history: List[str] = None, chat_stream_api: bool = False, chat_memory_history_deep: int = 20):
     full_response = ""
     response = chat(
         query=query,
@@ -51,12 +50,7 @@ def summarize_human_questions_by_chat_history(chat_history: List[str] = None) ->
     "{text}"
     """
     prompt = PromptTemplate.from_template(prompt_template)
-    response = chat_once(
-        query="\n".join(chat_history),
-        callback=st.session_state["DEBUG_CALLBACK"],
-        llm=st.session_state["LLM"],
-        prompt=prompt
-    )
+    response = chat_once(inputs={"text": "\n".join(chat_history)}, callback=st.session_state["DEBUG_CALLBACK"], llm=st.session_state["LLM"], prompt=prompt)
     return response
 
 
@@ -98,9 +92,7 @@ def init_chat_scenario(
             st.markdown(prompt)
         chat_history = None
         if chat_memory_enabled:
-            chat_history = [f"{'USER' if message['role'] == 'user' else 'ASSISTANT'}: {message['content']}" for message
-                            in
-                            st.session_state.chat_messages]
+            chat_history = [f"{'USER' if message['role'] == 'user' else 'ASSISTANT'}: {message['content']}" for message in st.session_state.chat_messages]
 
         with st.chat_message(name="assistant", avatar="🤖"):
             message_placeholder = st.empty()

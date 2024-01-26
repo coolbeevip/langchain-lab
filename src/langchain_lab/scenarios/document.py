@@ -15,7 +15,8 @@
 from datetime import datetime
 
 import streamlit as st
-from langchain.document_loaders import WebBaseLoader
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_experimental import text_splitter
 
 from langchain_lab import logger
 from langchain_lab.scenarios.error import display_error
