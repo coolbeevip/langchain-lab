@@ -10,4 +10,4 @@ install:
 	@poetry install
 
 run:
-	@streamlit run src/streamlit_app.py
+	@streamlit run main.py
