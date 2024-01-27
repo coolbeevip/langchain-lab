@@ -9,7 +9,7 @@
 
 ## 快速指南
 
-在项目根目录下创建一个 `.env` 文件，并在文件中配置 OpenAI 的 API Key 和 Model Name 列表。
+在项目根目录下创建一个 `.env` 文件，并在文件中配置 OpenAI 的 API Key 和调用地址。
 
 ```text
 OPENAI_API_BASE=https://api.openai.com/v1

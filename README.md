@@ -9,7 +9,7 @@ This experiment will verify different use cases of LLM using LangChain, which in
 
 ## Quick Guide
 
-Create a `.env` file in the project's root directory and input OpenAI's API Key and Model Name list in the file.
+Create a `.env` file in the project's root directory and input OpenAI's API key and base url in the file.
 
 ```text
 OPENAI_API_BASE=https://api.openai.com/v1
