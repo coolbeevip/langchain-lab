@@ -47,4 +47,4 @@ priority = "supplemental"
 [[tool.poetry.source]]
 name = "aliyun"
 url = "https://mirrors.aliyun.com/pypi/simple"
-priority = "primary"
+priority = "default"
