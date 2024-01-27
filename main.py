@@ -21,14 +21,37 @@ from src.langchain_lab.scenarios.sidebar import left_sidebar
 
 st.set_page_config(page_title="LangChain LAB", page_icon="📖", layout="wide")
 
+# st.markdown(
+#     """<style>
+#     .eczjsme4 {
+#         padding: 0rem 0rem;
+#     }
+#     .ea3mdgi4 {
+#         padding: 3rem 1rem 10rem;
+#     }
+#     html {
+#         font-size: 12px !important;
+#     }
+#     p {
+#         font-size: 12px !important;
+#     }
+#     code {
+#         font-size: 12px !important;
+#     }
+#     .stChatFloatingInputContainer {
+#         padding-bottom: 10px;
+#     }
+#     .stHeadingContainer {
+#         position: fixed;
+#         z-index: 999980;
+#         top: 0;
+#     }
+#     </style>""",
+#     unsafe_allow_html=True,
+# )  # noqa: W291
+
 st.markdown(
     """<style>
-    .eczjsme4 {
-        padding: 0rem 0rem;
-    }
-    .ea3mdgi4 {
-        padding: 3rem 1rem 10rem;
-    }
     html {
         font-size: 12px !important;
     }
@@ -38,14 +61,12 @@ st.markdown(
     code {
         font-size: 12px !important;
     }
-    .stChatFloatingInputContainer {
-        padding-bottom: 10px;
+    .eczjsme4 {
+        padding: 1rem 1rem;
     }
-    .stHeadingContainer {
-        position: fixed;
-        z-index: 999980;
-        top: 0;    
-    } 
+    .stChatFloatingInputContainer {
+        padding-bottom: 20px;
+    }    
     </style>""",
     unsafe_allow_html=True,
 )  # noqa: W291
