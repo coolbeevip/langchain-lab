@@ -27,7 +27,7 @@ from src.langchain_lab.core.llm import (
     load_llm_chat_models,
 )
 
-AI_PLATFORM = {
+APIs = {
     "OpenAI": {
         "api_url": os.environ.get("OPENAI_API_BASE", ""),
         "api_key": os.environ.get("OPENAI_API_KEY", ""),
@@ -37,35 +37,9 @@ AI_PLATFORM = {
             "model_kwargs": {},
         },
     },
-    "FastChat": {
-        "api_url": os.environ.get("FASTCHAT_API_BASE", ""),
-        "api_key": os.environ.get("FASTCHAT_API_KEY", ""),
-        "embedding": {
-            "provider": "huggingface",
-            "model": [
-                "moka-ai/m3e-base",
-                "sentence-transformers/msmarco-distilbert-base-v4",
-                "shibing624/text2vec-base-chinese",
-            ],
-            "model_kwargs": {"device": "cpu"},
-        },
-    },
-    "LMStudio": {
-        "api_url": os.environ.get("LMSTUDIO_API_BASE", ""),
-        "api_key": os.environ.get("LMSTUDIO_API_KEY", ""),
-        "embedding": {
-            "provider": "huggingface",
-            "model": [
-                "moka-ai/m3e-base",
-                "sentence-transformers/msmarco-distilbert-base-v4",
-                "shibing624/text2vec-base-chinese",
-            ],
-            "model_kwargs": {"device": "cpu"},
-        },
-    },
-    "BaiChuan": {
-        "api_url": os.environ.get("BAICHUAN_API_BASE", ""),
-        "api_key": os.environ.get("BAICHUAN_API_KEY", ""),
+    "CompatibleOpenAI": {
+        "api_url": os.environ.get("OPENAI_API_BASE", ""),
+        "api_key": os.environ.get("OPENAI_API_KEY", ""),
         "embedding": {
             "provider": "huggingface",
             "model": [
@@ -105,14 +79,7 @@ def left_sidebar():
 
     with st.sidebar:
         st.markdown("# LangChain Lab")
-        platforms = [k.strip() for k in os.environ["DEFAULT_AI_PLATFORM_SUPPORT"].split(",")]
-        enabled_platforms = [k for k in AI_PLATFORM.keys() if k in platforms]
-        ai_platform = st.selectbox(
-            "PLATFORM",
-            list(enabled_platforms),
-            label_visibility="hidden",
-            index=list(enabled_platforms).index(os.environ.get("DEFAULT_AI_PLATFORM", "OpenAI")),  # noqa: E501
-        )
+        ai_platform = st.selectbox("PLATFORM", list(APIs.keys()), label_visibility="hidden", index=0)
         st.session_state["AI_PLATFORM"] = ai_platform
 
         with st.expander("MODEL SETTINGS", expanded=True):
@@ -122,14 +89,14 @@ def left_sidebar():
                 type="password",
                 placeholder="Paste your AI Platform API URL here (https://-...)",
                 help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-                value=AI_PLATFORM[ai_platform]["api_url"],
+                value=APIs[ai_platform]["api_url"],
             )
             api_key_input = st.text_input(
                 "KEY",
                 type="password",
                 placeholder="Paste your AI Platform key here (sk-...)",
                 help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-                value=AI_PLATFORM[ai_platform]["api_key"],
+                value=APIs[ai_platform]["api_key"],
             )
             st.session_state["API_URL"] = api_url_input
             st.session_state["API_KEY"] = api_key_input
@@ -232,12 +199,12 @@ def left_sidebar():
 
             with st.expander("TEXT SPLITTERS", expanded=True):
                 # Embedding Settings
-                embedding_model = st.selectbox("EMBEDDING MODEL", AI_PLATFORM[ai_platform]["embedding"]["model"])
+                embedding_model = st.selectbox("EMBEDDING MODEL", APIs[ai_platform]["embedding"]["model"])
                 st.session_state["EMBED_MODEL_NAME"] = embedding_model
 
                 load_embedding(
-                    AI_PLATFORM[ai_platform]["embedding"]["provider"],
-                    AI_PLATFORM[ai_platform]["embedding"]["model_kwargs"],
+                    APIs[ai_platform]["embedding"]["provider"],
+                    APIs[ai_platform]["embedding"]["model_kwargs"],
                 )
                 chunk_size = st.slider("Chunk Size", 0, 5000, 200)
                 chunk_overlap = st.slider("Chunk Overlap", 0, chunk_size, 20)
