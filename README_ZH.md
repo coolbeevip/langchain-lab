@@ -6,6 +6,7 @@
 
 * python 3.11+
 * make
+* [poetry](https://python-poetry.org/docs/#installation)
 
 ## 快速指南
 
