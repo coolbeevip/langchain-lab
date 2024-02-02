@@ -6,6 +6,7 @@ This experiment will verify different use cases of LLM using LangChain, which in
 
 * python 3.11+
 * make
+* [poetry](https://python-poetry.org/docs/#installation)
 
 ## Quick Guide
 
