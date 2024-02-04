@@ -1,5 +1,5 @@
 [server]
-port = 8501
+port = 8080
 address = '0.0.0.0'
 
 # Due to conflicts between CORS and XSRF, if `server.enableXsrfProtection` is

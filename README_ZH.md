@@ -8,7 +8,19 @@
 * make
 * [poetry](https://python-poetry.org/docs/#installation)
 
-## 快速指南
+## 快速开始
+
+通过将  langchain-lab 绑定到外部端口 8080 来启动 Docker 容器。
+
+```shell
+docker run -d --rm -p 8080:8080 \
+-e OPENAI_API_BASE=http://t5.coolbeevip.com:8080 \
+-e OPENAI_API_KEY=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 \
+coolbeevip/langchain-lab
+```
+访问 http://localhost:8080 打开 langchain-lab 界面。
+
+## 开发指南
 
 在项目根目录下创建一个 `.env` 文件，并在文件中配置 OpenAI 的 API Key 和调用地址。
 

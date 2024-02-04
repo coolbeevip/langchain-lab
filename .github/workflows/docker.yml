@@ -35,7 +35,7 @@ jobs:
           file: ./Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: coolbeevip/langchain-lab:0.1.0,coolbeevip/ansible:latest
+          tags: coolbeevip/langchain-lab:0.1.0,coolbeevip/langchain-lab:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
       - name: Image Digest

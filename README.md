@@ -8,7 +8,19 @@ This experiment will verify different use cases of LLM using LangChain, which in
 * make
 * [poetry](https://python-poetry.org/docs/#installation)
 
-## Quick Guide
+## Quick Start
+
+Start the Docker container by binding langchain-lab to external port 8080.
+
+```shell
+docker run -d --rm -p 8080:8080 \
+-e OPENAI_API_BASE=http://t5.coolbeevip.com:8080 \
+-e OPENAI_API_KEY=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 \
+coolbeevip/langchain-lab
+```
+Visit http://localhost:8080 to access the langchain-lab web page.
+
+## Development Guide
 
 Create a `.env` file in the project's root directory and input OpenAI's API key and base url in the file.
 
