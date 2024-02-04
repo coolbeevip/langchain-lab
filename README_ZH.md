@@ -15,7 +15,7 @@
 ```shell
 docker run -d --rm -p 8080:8080 \
 -e OPENAI_API_BASE=http://t5.coolbeevip.com:8080 \
--e OPENAI_API_KEY=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 \
+-e OPENAI_API_KEY=sk-xx \
 coolbeevip/langchain-lab
 ```
 访问 http://localhost:8080 打开 langchain-lab 界面。

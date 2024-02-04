@@ -15,7 +15,7 @@ Start the Docker container by binding langchain-lab to external port 8080.
 ```shell
 docker run -d --rm -p 8080:8080 \
 -e OPENAI_API_BASE=http://t5.coolbeevip.com:8080 \
--e OPENAI_API_KEY=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 \
+-e OPENAI_API_KEY=sk-xx \
 coolbeevip/langchain-lab
 ```
 Visit http://localhost:8080 to access the langchain-lab web page.
