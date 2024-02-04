@@ -14,7 +14,7 @@
 
 ```shell
 docker run -d --rm -p 8080:8080 \
--e OPENAI_API_BASE=http://t5.coolbeevip.com:8080 \
+-e OPENAI_API_BASE=https://api.openai.com/v1 \
 -e OPENAI_API_KEY=sk-xx \
 coolbeevip/langchain-lab
 ```
