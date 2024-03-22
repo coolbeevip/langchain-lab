@@ -126,8 +126,7 @@ def init_chat_scenario(
             message_placeholder.markdown("...")
             st.session_state["DEBUG_CALLBACK"].init_message_placeholder(message_placeholder)
             try:
-                chat_scenario(prompt, message_placeholder, chat_history, chat_stream_api, chat_memory_history_deep,
-                              with_agent)
+                chat_scenario(prompt, message_placeholder, chat_history, chat_stream_api, chat_memory_history_deep, with_agent)
             finally:
                 st.session_state["DEBUG_CALLBACK"].clean_message_placeholder()
 

@@ -16,7 +16,7 @@ from os import path
 from pathlib import Path
 from typing import Any, Dict, Sequence
 
-from langchain.agents import create_openai_functions_agent, AgentExecutor
+from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.chains import LLMChain
 from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import PromptTemplate
@@ -46,10 +46,7 @@ def chat_agent(
 ):
     # agent_prompt = hub.pull("hwchase17/openai-functions-agent")
     # https://api.hub.langchain.com/commits/hwchase17/openai-functions-agent/a1655024b06afbd95d17449f21316291e0726f13dcfaf990cc0d18087ad689a5
-    agent_prompt_filename = path.join(
-        path.dirname(path.abspath(__file__)),
-        '../hub_offline/hwchase17_openai-functions-agent_a1655024.json'
-    )
+    agent_prompt_filename = path.join(path.dirname(path.abspath(__file__)), "../hub_offline/hwchase17_openai-functions-agent_a1655024.json")
     agent_prompt_json = json.loads(Path(agent_prompt_filename).read_text())
     agent_prompt = json.loads(json.dumps(agent_prompt_json["manifest"]), object_hook=Reviver())
 
