@@ -70,8 +70,7 @@ def indexing_documents(file_name: str, docs_size: int, embedding_model, __chunke
             end_time = datetime.now()
             time_diff = end_time - start_time
             seconds_diff = time_diff.total_seconds()
-            st.info(
-                f"Completed **{len(__chunked_file.docs)}** sections indexes by **{embedding_model}**! ({seconds_diff}s)")
+            st.info(f"Completed **{len(__chunked_file.docs)}** sections indexes by **{embedding_model}**! ({seconds_diff}s)")
 
     except Exception as e:
         display_error(logger, e)
@@ -137,9 +136,7 @@ def init_document_scenario():
         summary_submit = st.form_submit_button("Summarize")
     if summary_submit:
         with st.spinner("Wait for summarize...⏳"):
-            response = summarize(docs=chunked_file.docs,
-                                 llm=st.session_state["LLM"],
-                                 callback=st.session_state["DEBUG_CALLBACK"])
+            response = summarize(docs=chunked_file.docs, llm=st.session_state["LLM"], callback=st.session_state["DEBUG_CALLBACK"])
             st.markdown(response)
 
     # Question Answering Panel

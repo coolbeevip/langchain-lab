@@ -130,7 +130,7 @@ def left_sidebar():
         st.session_state["LANGCHAIN_DEBUG"] = api_debug
         langchain.debug = st.session_state["LANGCHAIN_DEBUG"]
 
-        scenario = st.selectbox("SCENARIO", ["CHAT", "DOCUMENT"])
+        scenario = st.selectbox("SCENARIO", ["CHAT", "AGENT", "DOCUMENT"])
         st.session_state["SCENARIO"] = scenario
         if scenario == "CHAT":
             # Memory Settings
@@ -151,6 +151,14 @@ def left_sidebar():
                     st.success("System prompt confirmed")
 
                 st.info("chat history placeholder is {chat_history}")
+
+        elif scenario == "AGENT":
+            with st.expander("TOOLS", expanded=True):
+                weather_tool = st.toggle("WEATHER", value=True)
+                st.session_state["WEATHER_TOOL"] = weather_tool
+                if st.button("CLEAR MESSAGES"):
+                    st.session_state.chat_messages = []
+                st.info("Select at least one tool, otherwise normal CHAT mode will be used.")
 
         elif scenario == "DOCUMENT":
             with st.expander("CHAIN", expanded=True):

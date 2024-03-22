@@ -65,3 +65,14 @@ else:
             chat_memory_history_deep=chat_memory_history_deep,
             chat_stream_api=chat_stream_api
         )
+    elif st.session_state['SCENARIO'] == 'AGENT':
+        chat_memory_enabled = st.session_state.get('CHAT_MEMORY_ENABLED', False)
+        chat_memory_history_deep = st.session_state.get('CHAT_MEMORY_HISTORY_DEEP', 20)
+        chat_stream_api = st.session_state.get('STREAM_API', False)
+
+        init_chat_scenario(
+            chat_memory_enabled=chat_memory_enabled,
+            chat_memory_history_deep=chat_memory_history_deep,
+            chat_stream_api=chat_stream_api,
+            with_agent=True,
+        )

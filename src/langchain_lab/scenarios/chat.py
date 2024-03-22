@@ -17,19 +17,42 @@ import streamlit as st
 from langchain.prompts import PromptTemplate
 
 from langchain_lab import logger
+from langchain_lab.agent_tools.weather.weather import weather
 from src.langchain_lab.core.chat import chat, chat_once
+from src.langchain_lab.core.chat_agent import chat_agent, chat_agent_once
 from src.langchain_lab.scenarios.debug import show_debug
 
 
-def chat_scenario(query: str, message_placeholder, chat_history: List[str] = None, chat_stream_api: bool = False, chat_memory_history_deep: int = 20):
+def chat_scenario(
+    query: str,
+    message_placeholder,
+    chat_history: List[str] = None,
+    chat_stream_api: bool = False,
+    chat_memory_history_deep: int = 20,
+    with_agent: bool = False,
+):
     full_response = ""
-    response = chat(
-        query=query,
-        callback=st.session_state["DEBUG_CALLBACK"],
-        llm=st.session_state["LLM"],
-        system_message=st.session_state.get("CHAT_PROMPT_TEMPLATE", ""),
-        chat_history=chat_history,
-    )
+
+    tools = []
+    if with_agent:
+        if st.session_state["WEATHER_TOOL"]:
+            tools.append(weather)
+
+    if len(tools) > 0:
+        response = chat_agent(
+            query=query,
+            callback=st.session_state["DEBUG_CALLBACK"],
+            llm=st.session_state["LLM"],
+            tools=tools,
+        )
+    else:
+        response = chat(
+            query=query,
+            callback=st.session_state["DEBUG_CALLBACK"],
+            llm=st.session_state["LLM"],
+            system_message=st.session_state.get("CHAT_PROMPT_TEMPLATE", ""),
+            chat_history=chat_history,
+        )
     for chunk in response.split("\n"):
         full_response += chunk + " "
 
@@ -45,12 +68,15 @@ def chat_scenario(query: str, message_placeholder, chat_history: List[str] = Non
         st.session_state.chat_messages = st.session_state.chat_messages[-chat_memory_history_deep:]
 
 
-def summarize_human_questions_by_chat_history(chat_history: List[str] = None) -> str:
+def summarize_human_questions_by_chat_history(chat_history: List[str] = None, with_agent: bool = False) -> str:
     prompt_template = """请根据以下对话,一句话整理Human提供的信息:
     "{text}"
     """
     prompt = PromptTemplate.from_template(prompt_template)
-    response = chat_once(inputs={"text": "\n".join(chat_history)}, callback=st.session_state["DEBUG_CALLBACK"], llm=st.session_state["LLM"], prompt=prompt)
+    if with_agent:
+        response = chat_agent_once(inputs={"text": "\n".join(chat_history)}, callback=st.session_state["DEBUG_CALLBACK"], llm=st.session_state["LLM"], prompt=prompt)
+    else:
+        response = chat_once(inputs={"text": "\n".join(chat_history)}, callback=st.session_state["DEBUG_CALLBACK"], llm=st.session_state["LLM"], prompt=prompt)
     return response
 
 
@@ -58,6 +84,7 @@ def init_chat_scenario(
     chat_memory_enabled: bool = False,
     chat_memory_history_deep: int = 20,
     chat_stream_api: bool = False,
+    with_agent: bool = False,
 ):
     logger.info(
         "Initializing chat scenario with memory={memory} deep={deep}".format(
@@ -99,7 +126,7 @@ def init_chat_scenario(
             message_placeholder.markdown("...")
             st.session_state["DEBUG_CALLBACK"].init_message_placeholder(message_placeholder)
             try:
-                chat_scenario(prompt, message_placeholder, chat_history, chat_stream_api, chat_memory_history_deep)
+                chat_scenario(prompt, message_placeholder, chat_history, chat_stream_api, chat_memory_history_deep, with_agent)
             finally:
                 st.session_state["DEBUG_CALLBACK"].clean_message_placeholder()
 
