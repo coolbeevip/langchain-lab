@@ -62,10 +62,17 @@ class TrackerCallbackHandler(BaseCallbackHandler):
 
     def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
         """Run on new LLM token. Only available when streaming is enabled."""
+        message_prefix = ""
         if self.message_placeholder:
-            # print(token)
             self.message_placeholder_message += f"{token}"
-            self.message_placeholder.markdown(f"{self.message_placeholder_message}", unsafe_allow_html=True)
+
+            try:
+                if st.session_state["SCENARIO"] == "AGENT":
+                    agent = st.session_state["AGENT_PICKED"]
+                    message_prefix = f"**({agent.__class__.__name__})**"
+            except Exception as e:
+                logger.error("Failed to get agent name", str(e))
+            self.message_placeholder.markdown(f"{message_prefix} {self.message_placeholder_message}", unsafe_allow_html=True)
 
     def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
         run_id = str(kwargs["run_id"])

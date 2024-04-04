@@ -43,9 +43,14 @@ make run
 
 ## Screenshot
 
+Chat
 ![](docs/image-chat.png)
+Chat-Role
 ![](docs/image-player.png)
+RAG
 ![](docs/image-doc.png)
+Agent
+![](docs/image-agent.png)
 
 ## Environmental Variables
 

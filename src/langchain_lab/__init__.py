@@ -20,3 +20,5 @@ if "DEFAULT_AI_PLATFORM" not in os.environ:
 
 if "HUGGINGFACE_CATCH_PATH" not in os.environ:
     os.environ["HUGGINGFACE_CATCH_PATH"] = os.path.join(WORK_DIR, "huggingface")
+
+from langchain_lab.scenarios.agents import *  # noqa: F401, E402, F403

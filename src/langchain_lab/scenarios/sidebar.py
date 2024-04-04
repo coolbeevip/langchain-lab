@@ -18,6 +18,7 @@ import langchain
 import streamlit as st
 
 from langchain_lab import logger
+from langchain_lab.core.agents import get_agent_by_name, get_agent_list
 from langchain_lab.core.translate import LANGUAGES
 from src.langchain_lab.core.embedding import embedding_init
 from src.langchain_lab.core.huggingface import download_hugging_face_model
@@ -130,9 +131,11 @@ def left_sidebar():
         st.session_state["LANGCHAIN_DEBUG"] = api_debug
         langchain.debug = st.session_state["LANGCHAIN_DEBUG"]
 
-        scenario = st.selectbox("SCENARIO", ["CHAT", "DOCUMENT"])
+        scenario = st.selectbox("SCENARIO", ["CHAT", "DOCUMENT", "AGENT"])
         st.session_state["SCENARIO"] = scenario
         if scenario == "CHAT":
+            # clear chat history when changing scenario
+            st.session_state.chat_messages = []
             # Memory Settings
             st.session_state["CHAT_MEMORY_ENABLED"] = st.toggle("MEMORY", True)
             if st.session_state["CHAT_MEMORY_ENABLED"]:
@@ -213,3 +216,11 @@ def left_sidebar():
 
                 embed_top_k = st.slider("Top K", 0, 50, 3)
                 st.session_state["EMBED_TOP_K"] = embed_top_k
+        elif scenario == "AGENT":
+            # clear chat history when changing scenario
+            st.session_state.chat_messages = []
+            with st.expander("AGENT SETTINGS", expanded=True):
+                agent_pick_list = st.selectbox("CHOOSE", get_agent_list().keys())
+                agent = get_agent_by_name(agent_pick_list)
+                st.session_state["AGENT_PICKED"] = agent
+                st.info(agent.description)

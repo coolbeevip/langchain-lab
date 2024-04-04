@@ -52,10 +52,9 @@ if 'LLM' not in st.session_state:
         'Select an AI platform in the sidebar and enter your API address and KEY.'
     )
 else:
-    # st.header(f"{st.session_state['SCENARIO']}")
     if st.session_state['SCENARIO'] == 'DOCUMENT':
         init_document_scenario()
-    elif st.session_state['SCENARIO'] == 'CHAT':
+    elif st.session_state['SCENARIO'] == 'CHAT' or st.session_state['SCENARIO'] == 'AGENT':
         chat_memory_enabled = st.session_state.get('CHAT_MEMORY_ENABLED', False)
         chat_memory_history_deep = st.session_state.get('CHAT_MEMORY_HISTORY_DEEP', 20)
         chat_stream_api = st.session_state.get('STREAM_API', False)

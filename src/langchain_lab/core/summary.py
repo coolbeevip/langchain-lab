@@ -22,7 +22,7 @@ from langchain_lab import logger
 from langchain_lab.core.llm import TrackerCallbackHandler
 
 summary_template = """Please use the following topics or keywords to generate an outline that includes titles, chapters, and subsections. Output it in Markdown format. Only give me the output and nothing else. The outline should be in the ${lang} language. Topics or keywords: \"\"\"${selection}\"\"\"
-"""
+"""  # noqa: E501
 
 
 def summarize(

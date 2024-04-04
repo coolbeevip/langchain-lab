@@ -23,13 +23,18 @@ from src.langchain_lab.scenarios.debug import show_debug
 
 def chat_scenario(query: str, message_placeholder, chat_history: List[str] = None, chat_stream_api: bool = False, chat_memory_history_deep: int = 20):
     full_response = ""
-    response = chat(
-        query=query,
-        callback=st.session_state["DEBUG_CALLBACK"],
-        llm=st.session_state["LLM"],
-        system_message=st.session_state.get("CHAT_PROMPT_TEMPLATE", ""),
-        chat_history=chat_history,
-    )
+    scenario = st.session_state["SCENARIO"]
+    if scenario == "AGENT":
+        agent = st.session_state["AGENT_PICKED"]
+        response = agent.invoke({"input": query})
+    else:
+        response = chat(
+            query=query,
+            callback=st.session_state["DEBUG_CALLBACK"],
+            llm=st.session_state["LLM"],
+            system_message=st.session_state.get("CHAT_PROMPT_TEMPLATE", ""),
+            chat_history=chat_history,
+        )
     for chunk in response.split("\n"):
         full_response += chunk + " "
 
@@ -69,11 +74,6 @@ def init_chat_scenario(
     if "CHAT_PROMPT_TEMPLATE" in st.session_state:
         prompt_string = st.session_state["CHAT_PROMPT_TEMPLATE"]
         if len(prompt_string.strip()) > 0:
-            # prompt_string = (prompt_string
-            #                  .replace("-", "\\-")
-            #                  .replace("\n", "\n\n")
-            #                  .replace("{", "\\{")
-            #                  .replace("}", "\\}"))
             prompt_placeholder.info(f"{prompt_string[:50 - 3]}...")
 
     # Initialize chat history
@@ -83,7 +83,13 @@ def init_chat_scenario(
     # Display chat messages from history on app rerun
     for chat_messages in st.session_state.chat_messages:
         with st.chat_message(name=chat_messages["role"], avatar=chat_messages["avatar"]):
-            st.markdown(chat_messages["content"])
+            message_prefix = ""
+            if chat_messages["role"] == "assistant":
+                # Display agent name if scenario is agent
+                if st.session_state["SCENARIO"] == "AGENT":
+                    agent = st.session_state["AGENT_PICKED"]
+                    message_prefix = f"**({agent.__class__.__name__})**"
+            st.markdown(f'{message_prefix} {chat_messages["content"]}')
 
     # Display chat input
     if prompt := st.chat_input("What is up?"):
