@@ -72,7 +72,8 @@ class TrackerCallbackHandler(BaseCallbackHandler):
                     message_prefix = f"**({agent.__class__.__name__})**"
             except Exception as e:
                 logger.error("Failed to get agent name", str(e))
-            self.message_placeholder.markdown(f"{message_prefix} {self.message_placeholder_message}", unsafe_allow_html=True)
+            if self.message_placeholder_message:
+                self.message_placeholder.markdown(f"{message_prefix} {self.message_placeholder_message}", unsafe_allow_html=True)
 
     def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
         run_id = str(kwargs["run_id"])
