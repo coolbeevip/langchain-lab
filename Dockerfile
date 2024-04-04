@@ -1,4 +1,4 @@
-FROM coolbeevip/langchain-cpu:3.11-0.1.4 as builder
+FROM coolbeevip/langchain-cpu:3.11-0.1.14 as builder
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 WORKDIR /usr/app/langchain-lab
 RUN python -m venv /usr/app/venv
