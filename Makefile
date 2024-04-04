@@ -3,7 +3,7 @@ install:
 	@poetry install
 
 lint:
-	@poetry install
+	@poetry install --with lint
 	@poetry run black src
 	@poetry run isort --profile black src
 	@poetry run flake8 src
