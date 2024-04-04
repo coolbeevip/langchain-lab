@@ -1,0 +1,17 @@
+name: pull request
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v1
+      - name: Code Linting
+        run: |
+          make lint
