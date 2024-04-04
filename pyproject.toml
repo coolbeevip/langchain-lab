@@ -9,10 +9,10 @@ packages = [{ include = "langchain_lab", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-streamlit = "1.30.0"
-langchain = "0.1.4"
-langchain-openai = "0.0.5"
-langchain-experimental = "0.0.49"
+streamlit = "1.32.2"
+langchain = "0.1.14"
+langchain-openai = "0.1.1"
+langchain-experimental = "0.0.56"
 langchainhub = "0.1.15"
 faiss-cpu = "^1.7.4"
 pandas = "^2.1.0"
