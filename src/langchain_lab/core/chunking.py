@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import ABC
+from typing import List
 
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -46,7 +47,7 @@ class Chunking(ABC):
         return chunked_file
 
 
-def chunk_file(file: File, chunk_size: int, chunk_overlap: int = 0, model_name="gpt-3.5-turbo") -> File:
+def chunk_file(file: File, chunk_size: int, chunk_overlap: int = 0, model_name="gpt-3.5-turbo") -> List[Document]:
     """Chunks each document in a file into smaller documents
     according to the specified chunk size and overlap
     where the size is determined by the number of token for the specified model.
@@ -73,7 +74,4 @@ def chunk_file(file: File, chunk_size: int, chunk_overlap: int = 0, model_name="
                 },
             )
             chunked_docs.append(doc)
-
-    chunked_file = file.copy()
-    chunked_file.docs = chunked_docs
-    return chunked_file
+    return chunked_docs

@@ -11,33 +11,76 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import re
 from datetime import datetime
+from typing import List
 
 import streamlit as st
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_experimental import text_splitter
+from bs4 import BeautifulSoup as Soup
+from langchain_core.documents import Document
 
 from langchain_lab import logger
 from langchain_lab.core.summary import summarize
+from langchain_lab.langchain_community.document_loaders.recursive_url_loader import (
+    RecursiveUrlLoader,
+)
 from langchain_lab.scenarios.error import display_error
 from src.langchain_lab.core.chunking import chunk_file
-from src.langchain_lab.core.embedding import embed_files
+from src.langchain_lab.core.embedding import embed_docs
 from src.langchain_lab.core.parsing import File, read_file
 from src.langchain_lab.core.qa import query_folder
 from src.langchain_lab.scenarios.debug import show_debug
 
 
 @st.cache_resource
-def splitting_file(uploaded_file, chunk_size, chunk_overlap):
+def splitting_url(url: str, chunk_size: int, chunk_overlap: int):
+    start_time = datetime.now()
+    with st.spinner(f"Spitting {url}. This may take a while⏳"):
+        loader = RecursiveUrlLoader(
+            url=url,
+            max_depth=2,
+            # link_regex=SUFFIXES_TO_IGNORE_REGEX,
+            extractor=lambda x: Soup(x, "html.parser").text,
+        )
+        docs = loader.load()
+        final_docs = []
+        for doc in docs:
+            content_type = doc.metadata.get("content_type", "text/html")
+            if content_type.startswith("text/html"):
+                final_docs.append(doc)
+
+        with st.expander(f"Document {len(final_docs)}"):
+            for index, doc in enumerate(docs):
+                if index > 0:
+                    st.write("---")
+                st.write(f"📄 {index}-{doc.metadata['source']}")
+                try:
+                    # Remove extra newlines
+                    text = re.sub("\n{2,}", "\n", doc.page_content)
+                    st.text(text)
+                except Exception as e:
+                    st.text(doc.page_content.encode("utf-8", "replace").decode())
+                    logger.warning(e)
+            end_time = datetime.now()
+            time_diff = end_time - start_time
+            seconds_diff = time_diff.total_seconds()
+        st.info(
+            f"Document successfully divided into **{len(final_docs)}** sections, \
+               each with a size of **{chunk_size}**, featuring an overlap of **{chunk_overlap}** ({seconds_diff}s)."
+        )
+    return final_docs
+
+
+@st.cache_resource
+def splitting_file(uploaded_file, chunk_size: int, chunk_overlap: int):
     __file = read_file(uploaded_file)
     if not is_file_valid(__file):
         st.stop()
     start_time = datetime.now()
     with st.spinner(f"Spitting document {uploaded_file.name}. This may take a while⏳"):
-        __chunked_file = chunk_file(__file, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        with st.expander(f"Document {len(__chunked_file.docs)}"):
-            for index, doc in enumerate(__chunked_file.docs):
+        docs = chunk_file(__file, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        with st.expander(f"Document {len(docs)}"):
+            for index, doc in enumerate(docs):
                 if index > 0:
                     st.write("---")
                 st.write(f"📄 {index}-{doc.metadata['source']}")
@@ -50,19 +93,19 @@ def splitting_file(uploaded_file, chunk_size, chunk_overlap):
             time_diff = end_time - start_time
             seconds_diff = time_diff.total_seconds()
         st.info(
-            f"Document successfully divided into **{len(__chunked_file.docs)}** sections, \
+            f"Document successfully divided into **{len(docs)}** sections, \
             each with a size of **{chunk_size}**, featuring an overlap of **{chunk_overlap}** ({seconds_diff}s)."
         )
-        return __chunked_file
+        return docs
 
 
 @st.cache_resource
-def indexing_documents(file_name: str, docs_size: int, embedding_model, __chunked_file):
+def indexing_documents(file_name: str, embedding_model, _docs: List[Document]):
     try:
         start_time = datetime.now()
         with st.spinner(f"Indexing **{file_name}** This may take a while⏳"):
-            folder_index = embed_files(
-                files=[__chunked_file],
+            folder_index = embed_docs(
+                docs=_docs,
                 vector_store="faiss",
                 embedding=st.session_state["EMBEDDING"],
             )
@@ -70,10 +113,11 @@ def indexing_documents(file_name: str, docs_size: int, embedding_model, __chunke
             end_time = datetime.now()
             time_diff = end_time - start_time
             seconds_diff = time_diff.total_seconds()
-            st.info(f"Completed **{len(__chunked_file.docs)}** sections indexes by **{embedding_model}**! ({seconds_diff}s)")
+            st.info(f"Completed **{len(_docs)}** sections indexes by **{embedding_model}**! ({seconds_diff}s)")
 
     except Exception as e:
-        display_error(logger, e)
+        logger.error(e)
+        display_error(e)
 
 
 def is_file_valid(file: File) -> bool:
@@ -97,21 +141,15 @@ def init_document_scenario():
 
     with web_tab:
         with st.form(key="web_loader_form"):
-            url_input = st.text_input("Enter a url", placeholder="https://www.example.com")
+            url_input = st.text_input("Enter a url", value="https://blog.langchain.dev/", placeholder="https://blog.langchain.dev/")
             load_btn = st.form_submit_button("Load Documents")
         if load_btn:
-            print(url_input)
-            loader = WebBaseLoader(url_input)
-            data = loader.load()
-            splits = text_splitter.split_documents(data)
-            st.write(splits)
-            # chunked_file = splitting_file(file, st.session_state["CHUNK_SIZE"], st.session_state["CHUNK_OVERLAP"])
-            # indexing_documents(
-            #     file.name,
-            #     len(chunked_file.docs),
-            #     st.session_state["EMBED_MODEL_NAME"],
-            #     chunked_file,
-            # )
+            docs = splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"], chunk_overlap=st.session_state["CHUNK_OVERLAP"])
+            indexing_documents(
+                file_name=url_input,
+                embedding_model=st.session_state["EMBED_MODEL_NAME"],
+                _docs=docs,
+            )
 
     with upload_tab:
         file = st.file_uploader(
@@ -123,12 +161,11 @@ def init_document_scenario():
         if not file:
             st.stop()
         else:
-            chunked_file = splitting_file(file, st.session_state["CHUNK_SIZE"], st.session_state["CHUNK_OVERLAP"])
+            docs = splitting_file(file, st.session_state["CHUNK_SIZE"], st.session_state["CHUNK_OVERLAP"])
             indexing_documents(
-                file.name,
-                len(chunked_file.docs),
-                st.session_state["EMBED_MODEL_NAME"],
-                chunked_file,
+                file_name=file.name,
+                embedding_model=st.session_state["EMBED_MODEL_NAME"],
+                _docs=docs,
             )
 
     # Summary Panel
@@ -136,7 +173,7 @@ def init_document_scenario():
         summary_submit = st.form_submit_button("Summarize")
     if summary_submit:
         with st.spinner("Wait for summarize...⏳"):
-            response = summarize(docs=chunked_file.docs, llm=st.session_state["LLM"], callback=st.session_state["DEBUG_CALLBACK"])
+            response = summarize(docs=docs, llm=st.session_state["LLM"], callback=st.session_state["DEBUG_CALLBACK"])
             st.markdown(response)
 
     # Question Answering Panel
@@ -184,3 +221,16 @@ def init_document_scenario():
                 except Exception as e:
                     st.error(e)
                     logger.error(e)
+
+
+def files_to_docs(files: List[File]) -> List[Document]:
+    """Combines all the documents in a list of files into a single list."""
+
+    all_texts = []
+    for file in files:
+        for doc in file.docs:
+            doc.metadata["file_name"] = file.name
+            doc.metadata["file_id"] = file.id
+            all_texts.append(doc)
+
+    return all_texts

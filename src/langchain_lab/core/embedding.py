@@ -19,11 +19,9 @@ from langchain.docstore.document import Document
 from langchain.embeddings.base import Embeddings
 from langchain.vectorstores import VectorStore
 from langchain.vectorstores.faiss import FAISS
-from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.embeddings import HuggingFaceEmbeddings, OpenAIEmbeddings
 
 from langchain_lab import logger
-from src.langchain_lab.core.parsing import File
 
 
 class FolderIndex:
@@ -34,39 +32,12 @@ class FolderIndex:
         self.docs = docs
         self.index: VectorStore = index
 
-    @staticmethod
-    def _combine_files(files: List[File]) -> List[Document]:
-        """Combines all the documents in a list of files into a single list."""
-
-        all_texts = []
-        for file in files:
-            for doc in file.docs:
-                doc.metadata["file_name"] = file.name
-                doc.metadata["file_id"] = file.id
-                all_texts.append(doc)
-
-        return all_texts
-
     @classmethod
-    def from_files(cls, files: List[File], embeddings: Embeddings, vector_store: Type[VectorStore]) -> "FolderIndex":
-        """Creates an index from files."""
-        all_docs = cls._combine_files(files)
-
-        index = vector_store.from_documents(
-            documents=all_docs,
-            embedding=embeddings,
-        )
-        return cls(docs=all_docs, index=index)
-
-    @classmethod
-    def from_web(cls, url: str, embeddings: Embeddings, vector_store: Type[VectorStore]) -> "FolderIndex":
-        loader = WebBaseLoader(url)
-        docs = loader.load()
+    def from_docs(cls, docs: List[Document], embeddings: Embeddings, vector_store: Type[VectorStore]) -> "FolderIndex":
         index = vector_store.from_documents(
             documents=docs,
             embedding=embeddings,
         )
-
         return cls(docs=docs, index=index)
 
 
@@ -85,7 +56,7 @@ def embedding_init(provider: str, api_url: str, api_key: str, model_name: str, m
     logger.info(f"Initializing embedding with {model_name}")
 
 
-def embed_files(files: List[File], embedding, vector_store: str, **kwargs) -> FolderIndex:
+def embed_docs(docs: List[Document], embedding, vector_store: str, **kwargs) -> FolderIndex:
     """Embeds a collection of files and stores them in a FolderIndex."""
     supported_vector_stores: dict[str, Type[VectorStore]] = {"faiss": FAISS}
 
@@ -94,8 +65,8 @@ def embed_files(files: List[File], embedding, vector_store: str, **kwargs) -> Fo
     else:
         raise NotImplementedError(f"Vector store {vector_store} not supported.")
 
-    return FolderIndex.from_files(
-        files=files,
+    return FolderIndex.from_docs(
+        docs=docs,
         embeddings=embedding,
         vector_store=_vector_store,
     )
