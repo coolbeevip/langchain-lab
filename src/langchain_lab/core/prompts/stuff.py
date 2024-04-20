@@ -34,11 +34,11 @@ SOURCES: 1-32
 
 QUESTION: {question}
 =========
-{summaries}
+{input_documents}
 =========
 FINAL ANSWER:"""
 
 STUFF_PROMPT = PromptTemplate(
     template=STUFF_PROMPT_TEMPLATE,
-    input_variables=["summaries", "question", "lang"],
+    input_variables=["input_documents", "question", "lang"],
 )

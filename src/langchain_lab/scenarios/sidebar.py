@@ -156,7 +156,13 @@ def left_sidebar():
                 st.info("chat history placeholder is {chat_history}")
 
         elif scenario == "DOCUMENT":
+            # Chain Settings
             with st.expander("CHAIN", expanded=True):
+                document_type = st.selectbox(
+                    "DOCUMENT TYPE",
+                    ("FILE", "WEB"),
+                )
+                st.session_state["DOCUMENT_TYPE"] = document_type
                 # Chain Settings
                 chain_type = st.selectbox(
                     "CHAIN TYPE",

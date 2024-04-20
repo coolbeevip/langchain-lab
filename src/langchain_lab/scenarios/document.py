@@ -39,7 +39,6 @@ def splitting_url(url: str, chunk_size: int, chunk_overlap: int):
         loader = RecursiveUrlLoader(
             url=url,
             max_depth=2,
-            # link_regex=SUFFIXES_TO_IGNORE_REGEX,
             extractor=lambda x: Soup(x, "html.parser").text,
         )
         docs = loader.load()
@@ -47,6 +46,9 @@ def splitting_url(url: str, chunk_size: int, chunk_overlap: int):
         for doc in docs:
             content_type = doc.metadata.get("content_type", "text/html")
             if content_type.startswith("text/html"):
+                page_content = doc.page_content.strip()
+                page_content = re.sub(r"\n{2,}", "\n", page_content)
+                doc.page_content = page_content
                 final_docs.append(doc)
 
         with st.expander(f"Document {len(final_docs)}"):
@@ -99,7 +101,7 @@ def splitting_file(uploaded_file, chunk_size: int, chunk_overlap: int):
         return docs
 
 
-@st.cache_resource
+#@st.cache_resource
 def indexing_documents(file_name: str, embedding_model, _docs: List[Document]):
     try:
         start_time = datetime.now()
@@ -136,37 +138,41 @@ def is_query_valid(query: str) -> bool:
 
 
 def init_document_scenario():
-    logger.info("Initializing document scenario")
-    upload_tab, web_tab = st.tabs(["Upload", "Web"])
+    document_type = st.session_state["DOCUMENT_TYPE"]
+    logger.info(f"Initializing document[{document_type}] scenario")
 
-    with web_tab:
+    if document_type == "WEB":
         with st.form(key="web_loader_form"):
-            url_input = st.text_input("Enter a url", value="https://blog.langchain.dev/", placeholder="https://blog.langchain.dev/")
+            url_input = st.text_input("Enter a url", value="https://blog.langchain.dev/",
+                                      placeholder="https://blog.langchain.dev/")
             load_btn = st.form_submit_button("Load Documents")
-        if load_btn:
-            docs = splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"], chunk_overlap=st.session_state["CHUNK_OVERLAP"])
-            indexing_documents(
-                file_name=url_input,
-                embedding_model=st.session_state["EMBED_MODEL_NAME"],
-                _docs=docs,
-            )
+            if load_btn:
+                docs = splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"],
+                                     chunk_overlap=st.session_state["CHUNK_OVERLAP"])
+                indexing_documents(
+                    file_name=url_input,
+                    embedding_model=st.session_state["EMBED_MODEL_NAME"],
+                    _docs=docs,
+                )
+            # else:
+            #     st.stop()
 
-    with upload_tab:
+    elif document_type == "FILE":
         file = st.file_uploader(
             "Upload a pdf, docx, txt or csv file",
             type=["pdf", "docx", "txt", "csv"],
             help="Scanned documents are not supported yet!",
         )
 
-        if not file:
-            st.stop()
-        else:
+        if file:
             docs = splitting_file(file, st.session_state["CHUNK_SIZE"], st.session_state["CHUNK_OVERLAP"])
             indexing_documents(
                 file_name=file.name,
                 embedding_model=st.session_state["EMBED_MODEL_NAME"],
                 _docs=docs,
             )
+        else:
+            st.stop()
 
     # Summary Panel
     with st.form(key="summary_form"):
