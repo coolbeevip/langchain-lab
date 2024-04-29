@@ -13,14 +13,13 @@
 # limitations under the License.
 import re
 from datetime import datetime
-from typing import List
+from typing import List, Any
 
 import streamlit as st
 from bs4 import BeautifulSoup as Soup
 from langchain_core.documents import Document
 
 from langchain_lab import logger
-from langchain_lab.core.summary import summarize
 from langchain_lab.langchain_community.document_loaders.recursive_url_loader import (
     RecursiveUrlLoader,
 )
@@ -102,7 +101,7 @@ def splitting_file(uploaded_file, chunk_size: int, chunk_overlap: int):
 
 
 @st.cache_resource
-def indexing_documents(file_name: str, embedding_model, _docs: List[Document]):
+def indexing_documents(file_name: str, embedding_model, _docs: List[Document], timestamp: Any = None):
     try:
         start_time = datetime.now()
         with st.spinner(f"Indexing **{file_name}** This may take a while⏳"):
@@ -146,16 +145,25 @@ def init_document_scenario():
             url_input = st.text_input("Enter a url", value="https://blog.langchain.dev/",
                                       placeholder="https://blog.langchain.dev/")
             load_btn = st.form_submit_button("Load Documents")
+
+            btn_clicked = False
             if load_btn:
                 docs = splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"],
                                      chunk_overlap=st.session_state["CHUNK_OVERLAP"])
                 indexing_documents(
                     file_name=url_input,
                     embedding_model=st.session_state["EMBED_MODEL_NAME"],
+                    timestamp=datetime.now(),
                     _docs=docs,
                 )
-            else:
+                btn_clicked = True
+
+            if 'folder_index' not in st.session_state:
                 st.stop()
+            else:
+                if not btn_clicked:
+                    splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"],
+                                  chunk_overlap=st.session_state["CHUNK_OVERLAP"])
 
     elif document_type == "FILE":
         file = st.file_uploader(
@@ -169,6 +177,7 @@ def init_document_scenario():
             indexing_documents(
                 file_name=file.name,
                 embedding_model=st.session_state["EMBED_MODEL_NAME"],
+                timestamp=file.file_id,
                 _docs=docs,
             )
         else:
