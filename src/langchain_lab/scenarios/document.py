@@ -52,7 +52,7 @@ def splitting_url(url: str, chunk_size: int, chunk_overlap: int):
                 final_docs.append(doc)
 
         with st.expander(f"Document {len(final_docs)}"):
-            for index, doc in enumerate(docs):
+            for index, doc in enumerate(final_docs):
                 if index > 0:
                     st.write("---")
                 st.write(f"📄 {index}-{doc.metadata['source']}")
@@ -101,7 +101,7 @@ def splitting_file(uploaded_file, chunk_size: int, chunk_overlap: int):
         return docs
 
 
-#@st.cache_resource
+@st.cache_resource
 def indexing_documents(file_name: str, embedding_model, _docs: List[Document]):
     try:
         start_time = datetime.now()
@@ -154,8 +154,8 @@ def init_document_scenario():
                     embedding_model=st.session_state["EMBED_MODEL_NAME"],
                     _docs=docs,
                 )
-            # else:
-            #     st.stop()
+            else:
+                st.stop()
 
     elif document_type == "FILE":
         file = st.file_uploader(
@@ -175,12 +175,12 @@ def init_document_scenario():
             st.stop()
 
     # Summary Panel
-    with st.form(key="summary_form"):
-        summary_submit = st.form_submit_button("Summarize")
-    if summary_submit:
-        with st.spinner("Wait for summarize...⏳"):
-            response = summarize(docs=docs, llm=st.session_state["LLM"], callback=st.session_state["DEBUG_CALLBACK"])
-            st.markdown(response)
+    # with st.form(key="summary_form"):
+    #     summary_submit = st.form_submit_button("Summarize")
+    # if summary_submit:
+    #     with st.spinner("Wait for summarize...⏳"):
+    #         response = summarize(docs=docs, llm=st.session_state["LLM"], callback=st.session_state["DEBUG_CALLBACK"])
+    #         st.markdown(response)
 
     # Question Answering Panel
     with st.form(key="qa_form"):

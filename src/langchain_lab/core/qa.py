@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import logging
 from typing import List
 
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.chat_models.base import BaseChatModel
 from langchain.docstore.document import Document
 
+from langchain_lab.core.prompts.stuff import STUFF_PROMPT
 from src.langchain_lab.core.embedding import FolderIndex
 from src.langchain_lab.core.llm import TrackerCallbackHandler, TrackItem
 
@@ -54,7 +55,7 @@ def query_folder(
         chain = load_qa_with_sources_chain(
             llm=llm,
             chain_type=chain_type,
-            #prompt=STUFF_PROMPT,
+            prompt=STUFF_PROMPT,
             callbacks=[callback],
         )
     elif chain_type == "refine":
@@ -93,6 +94,7 @@ def query_folder(
         # Translate answer to summary language
         # answer = translate(selection=answer, language=summary_language, llm=llm, callback=callback)
     except Exception as e:
+        logging.error(e)
         answer = str(e)
         sources = []
     tracks = callback.get_tracks()
