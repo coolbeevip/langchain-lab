@@ -47,7 +47,7 @@ def embedding_init(provider: str, api_url: str, api_key: str, model_name: str, m
         embedding = OpenAIEmbeddings(model=model_name, openai_api_base=api_url, openai_api_key=api_key)
     elif provider == "huggingface":
         embedding = HuggingFaceEmbeddings(
-            model_name=model_name,
+            model_name=os.path.join(os.environ["HUGGINGFACE_CATCH_PATH"], model_name),
             cache_folder=os.environ["HUGGINGFACE_CATCH_PATH"],
             model_kwargs=model_kwargs,
         )

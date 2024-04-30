@@ -18,4 +18,5 @@ from sentence_transformers import SentenceTransformer
 
 
 def download_hugging_face_model(model_name):
-    SentenceTransformer(model_name, cache_folder=os.environ["HUGGINGFACE_CATCH_PATH"])
+    cache_folder = os.environ["HUGGINGFACE_CATCH_PATH"]
+    SentenceTransformer(os.path.join(cache_folder, model_name), cache_folder=cache_folder)
