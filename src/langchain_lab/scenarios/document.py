@@ -168,7 +168,7 @@ def init_document_scenario():
     elif document_type == "FILE":
         file = st.file_uploader(
             "Upload a pdf, docx, txt or csv file",
-            type=["pdf", "docx", "txt", "csv"],
+            type=["pdf", "docx", "txt", "csv", "md"],
             help="Scanned documents are not supported yet!",
         )
 

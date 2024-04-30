@@ -26,6 +26,7 @@ import docx2txt
 import fitz
 import pandas as pd
 from langchain.docstore.document import Document
+from langchain_text_splitters import MarkdownHeaderTextSplitter
 
 from langchain_lab import logger
 
@@ -157,6 +158,18 @@ class CsvFile(File):
         return cls(name=file.name, id=md5(file.read()).hexdigest(), docs=docs)
 
 
+class MarkdownFile(File):
+    @classmethod
+    def from_bytes(cls, file: BytesIO) -> "MarkdownFile":
+        headers_to_split_on = [("#", "Header 1"), ("##", "Header 2"), ("###", "Header 3"), ("####", "Header 4")]
+        markdown_splitter = MarkdownHeaderTextSplitter(
+            headers_to_split_on=headers_to_split_on,
+            strip_headers=False,
+        )
+        docs = markdown_splitter.split_text(text=file.read().decode("utf-8"))
+        return cls(name=file.name, id=md5(file.read()).hexdigest(), docs=docs)
+
+
 def read_file(file: BytesIO) -> File:
     """Reads an uploaded file and returns a File object"""
     if file.name.lower().endswith(".docx"):
@@ -167,5 +180,7 @@ def read_file(file: BytesIO) -> File:
         return TxtFile.from_bytes(file)
     elif file.name.lower().endswith(".csv"):
         return CsvFile.from_bytes(file)
+    elif file.name.lower().endswith(".md"):
+        return MarkdownFile.from_bytes(file)
     else:
         raise NotImplementedError(f"File type {file.name.split('.')[-1]} not supported")
