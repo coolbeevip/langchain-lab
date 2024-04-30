@@ -206,6 +206,9 @@ def left_sidebar():
                 st.session_state["SUMMARY_LANGUAGE"] = summary_language
                 st.info(f"Answer in {summary_language}")
 
+                summarize = st.toggle("SUMMARIZE", value=False)
+                st.session_state["SUMMARIZE"] = summarize
+
             with st.expander("TEXT SPLITTERS", expanded=True):
                 # Embedding Settings
                 embedding_model = st.selectbox("EMBEDDING MODEL", APIs[ai_platform]["embedding"]["model"])

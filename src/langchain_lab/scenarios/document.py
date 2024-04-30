@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup as Soup
 from langchain_core.documents import Document
 
 from langchain_lab import logger
+from langchain_lab.core.summary import summarize
 from langchain_lab.langchain_community.document_loaders.recursive_url_loader import (
     RecursiveUrlLoader,
 )
@@ -101,7 +102,7 @@ def splitting_file(uploaded_file, chunk_size: int, chunk_overlap: int):
 
 
 @st.cache_resource
-def indexing_documents(file_name: str, embedding_model, _docs: List[Document], timestamp: Any = None):
+def indexing_documents(file_name: str, embedding_model, _docs: List[Document], cache_flag: Any = None):
     try:
         start_time = datetime.now()
         with st.spinner(f"Indexing **{file_name}** This may take a while⏳"):
@@ -119,6 +120,18 @@ def indexing_documents(file_name: str, embedding_model, _docs: List[Document], t
     except Exception as e:
         logger.error(e)
         display_error(e)
+
+
+@st.cache_resource
+def summarize_documents(_docs: List[Document], cache_flag: Any = None):
+    if st.session_state.get("SUMMARIZE", False):
+        with st.expander(f"Summary", True):
+            with st.spinner("Wait for summarize...⏳"):
+                response = summarize(docs=_docs,
+                                     llm=st.session_state["LLM"],
+                                     summary_language=st.session_state["SUMMARY_LANGUAGE"],
+                                     callback=st.session_state["DEBUG_CALLBACK"])
+                st.markdown(response)
 
 
 def is_file_valid(file: File) -> bool:
@@ -150,10 +163,11 @@ def init_document_scenario():
             if load_btn:
                 docs = splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"],
                                      chunk_overlap=st.session_state["CHUNK_OVERLAP"])
+                summarize_documents(docs, cache_flag=datetime.now())
                 indexing_documents(
                     file_name=url_input,
                     embedding_model=st.session_state["EMBED_MODEL_NAME"],
-                    timestamp=datetime.now(),
+                    cache_flag=datetime.now(),
                     _docs=docs,
                 )
                 btn_clicked = True
@@ -174,22 +188,15 @@ def init_document_scenario():
 
         if file:
             docs = splitting_file(file, st.session_state["CHUNK_SIZE"], st.session_state["CHUNK_OVERLAP"])
+            summarize_documents(docs, cache_flag=file.file_id,)
             indexing_documents(
                 file_name=file.name,
                 embedding_model=st.session_state["EMBED_MODEL_NAME"],
-                timestamp=file.file_id,
+                cache_flag=file.file_id,
                 _docs=docs,
             )
         else:
             st.stop()
-
-    # Summary Panel
-    # with st.form(key="summary_form"):
-    #     summary_submit = st.form_submit_button("Summarize")
-    # if summary_submit:
-    #     with st.spinner("Wait for summarize...⏳"):
-    #         response = summarize(docs=docs, llm=st.session_state["LLM"], callback=st.session_state["DEBUG_CALLBACK"])
-    #         st.markdown(response)
 
     # Question Answering Panel
     with st.form(key="qa_form"):
