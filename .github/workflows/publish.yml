@@ -41,6 +41,10 @@ jobs:
           sudo rm -f /swapfile
           sudo apt clean
           docker system prune -f
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"          
           df -h
       - name: Build and Push
         id: docker_build
