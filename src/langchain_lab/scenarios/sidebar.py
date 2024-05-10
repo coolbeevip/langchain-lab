@@ -43,9 +43,7 @@ APIs = {
         "api_key": os.environ.get("OPENAI_API_KEY", ""),
         "embedding": {
             "provider": "huggingface",
-            "model": [
-                "moka-ai_m3e-base", "BAAI_bge-m3"
-            ],
+            "model": ["moka-ai_m3e-base", "BAAI_bge-m3"],
             "model_kwargs": {"device": "cpu"},
         },
     },
@@ -145,8 +143,7 @@ def left_sidebar():
                             st.session_state.chat_messages = []
 
             with st.expander("ROLE", expanded=True):
-                st.text_area("SYSTEM PROMPT", key="SYSTEM_PROMPT", height=200,
-                             placeholder="Enter a prompt word related to the role")
+                st.text_area("SYSTEM PROMPT", key="SYSTEM_PROMPT", height=200, placeholder="Enter a prompt word related to the role")
                 if st.button("CONFIRM"):
                     st.session_state.chat_messages = []
                     st.session_state["CHAT_PROMPT_TEMPLATE"] = st.session_state.get("SYSTEM_PROMPT", "")

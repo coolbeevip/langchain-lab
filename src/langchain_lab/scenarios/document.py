@@ -13,7 +13,7 @@
 # limitations under the License.
 import re
 from datetime import datetime
-from typing import List, Any
+from typing import Any, List
 
 import streamlit as st
 from bs4 import BeautifulSoup as Soup
@@ -125,12 +125,9 @@ def indexing_documents(file_name: str, embedding_model, _docs: List[Document], c
 @st.cache_resource
 def summarize_documents(_docs: List[Document], cache_flag: Any = None):
     if st.session_state.get("SUMMARIZE", False):
-        with st.expander(f"Summary", True):
+        with st.expander("Summary", True):
             with st.spinner("Wait for summarize...⏳"):
-                response = summarize(docs=_docs,
-                                     llm=st.session_state["LLM"],
-                                     summary_language=st.session_state["SUMMARY_LANGUAGE"],
-                                     callback=st.session_state["DEBUG_CALLBACK"])
+                response = summarize(docs=_docs, llm=st.session_state["LLM"], summary_language=st.session_state["SUMMARY_LANGUAGE"], callback=st.session_state["DEBUG_CALLBACK"])
                 st.markdown(response)
 
 
@@ -155,14 +152,12 @@ def init_document_scenario():
 
     if document_type == "WEB":
         with st.form(key="web_loader_form"):
-            url_input = st.text_input("Enter a url", value="https://blog.langchain.dev/",
-                                      placeholder="https://blog.langchain.dev/")
+            url_input = st.text_input("Enter a url", value="https://blog.langchain.dev/", placeholder="https://blog.langchain.dev/")
             load_btn = st.form_submit_button("Load Documents")
 
             btn_clicked = False
             if load_btn:
-                docs = splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"],
-                                     chunk_overlap=st.session_state["CHUNK_OVERLAP"])
+                docs = splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"], chunk_overlap=st.session_state["CHUNK_OVERLAP"])
                 summarize_documents(docs, cache_flag=datetime.now())
                 indexing_documents(
                     file_name=url_input,
@@ -172,12 +167,11 @@ def init_document_scenario():
                 )
                 btn_clicked = True
 
-            if 'folder_index' not in st.session_state:
+            if "folder_index" not in st.session_state:
                 st.stop()
             else:
                 if not btn_clicked:
-                    splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"],
-                                  chunk_overlap=st.session_state["CHUNK_OVERLAP"])
+                    splitting_url(url=url_input, chunk_size=st.session_state["CHUNK_SIZE"], chunk_overlap=st.session_state["CHUNK_OVERLAP"])
 
     elif document_type == "FILE":
         file = st.file_uploader(
@@ -188,7 +182,10 @@ def init_document_scenario():
 
         if file:
             docs = splitting_file(file, st.session_state["CHUNK_SIZE"], st.session_state["CHUNK_OVERLAP"])
-            summarize_documents(docs, cache_flag=file.file_id,)
+            summarize_documents(
+                docs,
+                cache_flag=file.file_id,
+            )
             indexing_documents(
                 file_name=file.name,
                 embedding_model=st.session_state["EMBED_MODEL_NAME"],

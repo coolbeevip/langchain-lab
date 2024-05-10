@@ -47,18 +47,15 @@ refine_prompt_template = """
 #     "If the context isn't useful, return the original summary."
 # )
 
+
 def summarize(
     docs: List[Document],
     llm: BaseChatModel,
     summary_language: str = "English",
     callback: TrackerCallbackHandler = None,
 ):
-    question_prompt = PromptTemplate(
-        template=question_prompt_template, input_variables=["text", "lang"]
-    )
-    refine_prompt = PromptTemplate(
-        template=refine_prompt_template, input_variables=["text", "lang"]
-    )
+    question_prompt = PromptTemplate(template=question_prompt_template, input_variables=["text", "lang"])
+    refine_prompt = PromptTemplate(template=refine_prompt_template, input_variables=["text", "lang"])
 
     refine_chain = load_summarize_chain(
         llm=llm,

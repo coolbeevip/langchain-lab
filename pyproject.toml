@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langchain-lab"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Lei Zhang <zhanglei@apache.org>"]
 license = "Apache License 2.0"
@@ -11,9 +11,9 @@ packages = [{ include = "langchain_lab", from = "src" }]
 python = "^3.11"
 streamlit = "1.32.2"
 langchain = "0.1.14"
-langchain-openai = "0.1.1"
-langchain-experimental = "0.0.56"
-langchainhub = "0.1.15"
+langchain-openai = "0.1.6"
+langchain-experimental = "0.0.58"
+langchainhub = "0.1.19"
 faiss-cpu = "^1.7.4"
 pandas = "^2.1.0"
 python-dotenv = "^1.0.0"
