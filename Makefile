@@ -1,6 +1,9 @@
 install:
-	@poetry lock
 	@poetry install
+
+lock:
+	@poetry update
+	@poetry lock
 
 lint:
 	@poetry install --with lint
