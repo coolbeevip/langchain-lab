@@ -1,7 +1,7 @@
 install:
 	@poetry install
 
-lock:
+update:
 	@poetry update
 	@poetry lock
 
