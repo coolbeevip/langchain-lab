@@ -21,7 +21,6 @@ from langchain.vectorstores import VectorStore
 from langchain_community.embeddings import HuggingFaceEmbeddings, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
-
 from langchain_lab import logger
 
 

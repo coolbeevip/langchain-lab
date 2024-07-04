@@ -21,7 +21,6 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chat_models.base import BaseChatModel
 from langchain.schema import LLMResult
 from langchain_openai import ChatOpenAI
-
 from openai import OpenAI
 
 from langchain_lab import logger
