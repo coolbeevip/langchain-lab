@@ -107,7 +107,7 @@ class MarketingAnalysisAssistant:
     def data_analysis_tool():
         """This tool enhances analysis by providing detailed statistics and visualizations."""
         try:
-            df = pd.read_csv("../../../tests/langchain_lab/langgraph/sales_data.csv")
+            df = pd.read_csv("../../../../tests/langchain_lab/langgraph/marketing_analysis_assistant/sales_data.csv")
             analysis_result = df.describe()
             basic_stats_response = f"Basic statistics:\n\n{analysis_result.to_markdown()}"
             correlation = df.corr()

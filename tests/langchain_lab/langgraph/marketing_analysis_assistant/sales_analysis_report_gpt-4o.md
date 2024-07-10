@@ -2,7 +2,7 @@
 
 > gpt-4o
 
-![image-20240710141823753](assets/marketing_analysis_assistant.png)
+![image-20240710141823753](../assets/marketing_analysis_assistant.png)
 
 ## 多代理协商过程
 
