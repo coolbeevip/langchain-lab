@@ -14,7 +14,7 @@ class TestMarketingAnalysisAssistant(TestCase):
     def test_main(self):
         assistant = MarketingAnalysisAssistant(openai_api_base=os.environ["OPENAI_API_BASE"],
                                                openai_api_key=os.environ["OPENAI_API_KEY"],
-                                               model_name="gpt-4o",
+                                               model_name=os.environ["MODEL_NAME"],
                                                recursion_limit=50)
         assistant.run()
 
