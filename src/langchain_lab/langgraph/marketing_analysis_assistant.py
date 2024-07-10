@@ -220,5 +220,7 @@ class MarketingAnalysisAssistant:
                         messages = s[key]["messages"]
                         f.write(f"## {key}\n\n")
                         for msg in messages:
+                            if msg.additional_kwargs:
+                                f.write(f"{msg.additional_kwargs}\n")
                             f.write(msg.content)
                             f.write("\n\n")  # 结束
