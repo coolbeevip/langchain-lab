@@ -1,11 +1,19 @@
-## sales_staff
+# 市场部销售智能助手（POC）
+
+> GPT-4
+
+![image-20240710141823753](assets/marketing_analysis_assistant.png)
+
+## 多代理协商过程
+
+### 销售人员
 
 {'function_call': {'arguments': '{}', 'name': 'load_sales_data_tool'}}
 
 
-## sales_tool
+### 销售工具
 
-load_sales_data_tool response: Sales Data: 
+load_sales_data_tool response: Sales Data:
 
 |    |   Year |   Product_A |   Product_B |   Product_C |
 |---:|-------:|------------:|------------:|------------:|
@@ -15,12 +23,12 @@ load_sales_data_tool response: Sales Data:
 |  3 |   2022 |        1070 |         559 |         752 |
 |  4 |   2023 |        1059 |         533 |         730 |
 
-## sales_staff
+### 销售人员
 
 {'function_call': {'arguments': '{}', 'name': 'data_analysis_tool'}}
 
 
-## sales_tool
+### 销售工具
 
 data_analysis_tool response: Basic statistics:
 
@@ -44,7 +52,7 @@ Correlation matrix:
 | Product_B |  0.194099  |   0.749269  |    1        |   -0.464733 |
 | Product_C | -0.777903  |  -0.43633   |   -0.464733 |    1        |
 
-## sales_staff
+### 销售人员
 
 根据我们的数据分析工具提供的结果，我们公司商品A、B、C过去5年的销售数据和相关统计如下：
 
@@ -64,11 +72,11 @@ Correlation matrix:
 
 请与sales_manager讨论这些分析结果，并根据反馈进一步制定本期的销售策略。
 
-## sales_manager
+### 销售经理
 
 会话转给sales_manager。
 
-## sales_staff
+### 销售人员
 
 感谢您提供的详细分析。根据您的见解，我们可以考虑以下策略：
 
@@ -82,7 +90,7 @@ Correlation matrix:
 
 请根据这些策略进行讨论，并反馈您认为最适合的方向。我们需要确保策略的实施能够最大化地提升销售效果并增加市场份额。
 
-## sales_manager
+### 销售经理
 
 感谢您的建议，这些策略听起来都很有前景。我同意首先关注商品C的市场推广和产品改进，因为其销售下降最为明显，需要迅速采取行动以避免进一步的市场份额损失。
 
@@ -94,7 +102,7 @@ Correlation matrix:
 
 请继续与相关部门协调这些策略的具体实施计划，并保持沟通，以确保所有措施都能有效执行。
 
-## sales_staff
+### 销售人员
 
 感谢您的反馈和确认。我将立即与相关部门协调，开始实施以下步骤：
 
