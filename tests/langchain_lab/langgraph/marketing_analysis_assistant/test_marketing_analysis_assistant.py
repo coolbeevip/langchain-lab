@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from langchain_lab.langgraph.marketing_analysis_assistant.marketing_analysis_assistant import MarketingAnalysisAssistant
 
-load_dotenv(".env")
+load_dotenv("./.env")
 
 
 class TestMarketingAnalysisAssistant(TestCase):
