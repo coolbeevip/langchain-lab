@@ -24,6 +24,7 @@ class MarketingAnalysisAssistant:
     repl = PythonREPL()
 
     def __init__(self, openai_api_base: str, openai_api_key: str, model_name: str, recursion_limit: int = 20):
+        self.model_name = model_name
         self.recursion_limit = recursion_limit
         self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key, temperature=0.7, request_timeout=600, streaming=True)
         # 定义智能体
@@ -194,7 +195,16 @@ class MarketingAnalysisAssistant:
         return prompt | llm.bind_functions(functions)
 
     def run(self):
-        with open("sales_analysis_report.md", "w") as f:
+        agent_names = {
+            "sales_staff": "销售员",
+            "sales_manager": "销售经理",
+            "sales_tool": "数据分析工具",
+        }
+        with open(f"sales_analysis_report_{self.model_name}.md", "w") as f:
+            f.write("# 市场部销售智能助手（POC）\n\n")
+            f.write(f"> {self.model_name}\n\n")
+            f.write("![image - 20240710141823753](assets / marketing_analysis_assistant.png)\n\n")
+            f.write("## 多代理协商过程\n\n")
             for s in self.graph.stream(
                 {
                     "messages": [
@@ -218,7 +228,7 @@ class MarketingAnalysisAssistant:
                 for key in ["sales_staff", "sales_manager", "sales_tool"]:
                     if key in s:
                         messages = s[key]["messages"]
-                        f.write(f"## {key}\n\n")
+                        f.write(f"### {agent_names[key]}\n\n")
                         for msg in messages:
                             if msg.additional_kwargs:
                                 f.write(f"{msg.additional_kwargs}\n")
