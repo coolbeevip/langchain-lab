@@ -113,6 +113,12 @@ class NetworkOperationsAnalysisAssistant:
         workflow.set_entry_point("wirelessNetworkEngineer")
         self.graph = workflow.compile()
 
+        # from IPython.display import Image
+        # import matplotlib.pyplot as plt
+        # img = Image(self.graph.get_graph().print_ascii())
+        # imgplot = plt.imshow(img)
+        # plt.show()
+
         tools = [self.data_analysis_tool, self.python_repl_tool, self.load_data_tool]
         self.tool_executor = ToolExecutor(tools)
 
@@ -249,6 +255,7 @@ class NetworkOperationsAnalysisAssistant:
         with open(f"network_operations_analysis_assistant_report_{self.model_name}.md", "w") as f:
             f.write("# 网络运维智能助手（POC）\n\n")
             f.write(f"> {self.model_name}\n\n")
+            f.write(f"```{self.graph.get_graph().draw_ascii()}\n```\n\n")
             # f.write("![image-20240710141823753](assets/marketing_analysis_assistant.png)\n\n")
             f.write("## 多代理协商过程\n\n")
             for s in self.graph.stream(

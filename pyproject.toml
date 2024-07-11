@@ -28,6 +28,7 @@ SQLAlchemy = "2.0.22"
 wikipedia = "1.4.0"
 tabulate = "0.9.0"
 openpyxl = "3.1.5"
+grandalf = "0.8"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
