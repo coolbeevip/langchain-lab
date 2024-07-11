@@ -1,0 +1,37 @@
+@startuml
+start
+
+:网络运营经理 (NetworkOpsManager);
+:接收统计报表并初步审核;
+:召集分析会议;
+
+:无线网络工程师 (WirelessNetworkEngineer);
+:分析无线网络性能和资源数据;
+
+
+:数据分析师 (DataAnalyst);
+:深入挖掘数据，提供建议;
+:准备数据可视化报告;
+
+:网络维护人员 (NetworkMaintenanceTech);
+:确认并解决技术问题;
+
+
+:IT运营经理 (ITOpsManager);
+:协调IT资源，支持分析和解决问题;
+:优化网络操作流程;
+
+:客户服务经理 (CustomerServiceManager);
+:整理客户投诉和反馈;
+
+
+:高层管理人员 (ExecutiveManagement);
+:审核整体报告和建议;
+:批准必要的优化项目;
+
+:质量保证（QA）团队 (QATeam);
+:评估最终网络服务质量;
+:确保符合公司标准和法规;
+
+stop
+@enduml
