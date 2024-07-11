@@ -286,12 +286,11 @@ class NetworkOperationsAnalysisAssistant:
                             content="利用事先准备好的 agent 和 tool 进行会话。"
                                     "会话的主题是'分析总结无线网络统计报表，挖掘数据信息。"
                                     "会话由 networkOpsManager 开始。"
-                                    "数据分析工具首先加载数据。根据数据生成无线网统计报表的简要分析总结"
-                                    "数据分析工具对数据进行基本统计和相关关系分析。并提供基于分析结果的见解。"
+                                    "数据分析工具首先加载数据。根据数据生成无线网统计报表的简要分析总结。"
+                                    "然后，报表数据和分析总结传达给 dataAnalyst，并进行基本统计和相关性分析。"
                                     "接下来，将数据分析工具给出的分析结果和见解传达给 networkOpsManager，并进行简要分析总结。"
-                                    "然后，networkOpsManager 和 dataAnalyst 分析结果和见解进行交流，并共发现问题并制定有效措施。"
-                                    "networkOpsManager 和 dataAnalyst。"
-                                    "最后，networkOpsManager 在总结所有对话后，从总体概况、异常省份、资源和性能完成率、省份详细表现、文件传输即时率、性能合规率等方面给出综合性总结并结束对话。"
+                                    "然后，networkOpsManager 和 dataAnalyst 根据数据分析工具提供的分析结果和见解进行交流，共发现问题并制定有效措施。"
+                                    "最后，networkOpsManager 在总结所有对话后，列出重要的要点并结束。"
                         )
                     ],
                 },
