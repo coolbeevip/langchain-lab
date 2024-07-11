@@ -30,20 +30,29 @@ class NetworkOperationsAnalysisAssistant:
     def __init__(self, openai_api_base: str, openai_api_key: str, model_name: str, recursion_limit: int = 20):
         self.model_name = model_name
         self.recursion_limit = recursion_limit
-        self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key, temperature=0.7, request_timeout=600, streaming=True)
+        self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key,
+                              temperature=0.000000001, request_timeout=600, streaming=True)
+
         # 网络运营经理
         networkOpsManager = self.create_agent(
             self.llm,
-            [self.python_repl_tool],
+            [self.load_data_tool],
             system_message="负责整体网络运营策略的制定和执行，监控网络性能指标，确保服务质量，解决网络异常和紧急事件。",
         )
 
-        # 无线网络工程师
-        wirelessNetworkEngineer = self.create_agent(
+        # 数据分析师
+        dataAnalyst = self.create_agent(
             self.llm,
-            [self.load_data_tool, self.python_repl_tool, self.data_analysis_tool],
-            system_message="负责根据数据深入挖掘，提供建议并准备可视化报告。",
+            [self.data_analysis_tool],
+            system_message="负责从各种数据源中收集、处理、分析数据，并为决策者提供基于数据的洞察和建议。",
         )
+
+        # 无线网络工程师
+        # wirelessNetworkEngineer = self.create_agent(
+        #     self.llm,
+        #     [self.load_data_tool, self.python_repl_tool, self.data_analysis_tool],
+        #     system_message="负责根据数据深入挖掘，提供建议并准备可视化报告。",
+        # )
 
         # # IT运营经理
         # itOpsManager = self.create_agent(
@@ -75,8 +84,13 @@ class NetworkOperationsAnalysisAssistant:
 
         # 定义图
         workflow = StateGraph(AgentState)
-        workflow.add_node("wirelessNetworkEngineer", functools.partial(self.graph_node_agent, agent=wirelessNetworkEngineer, name="wirelessNetworkEngineer"))
-        workflow.add_node("networkOpsManager", functools.partial(self.graph_node_agent, agent=networkOpsManager, name="networkOpsManager"))
+        # workflow.add_node("wirelessNetworkEngineer",
+        #                   functools.partial(self.graph_node_agent, agent=wirelessNetworkEngineer,
+        #                                     name="wirelessNetworkEngineer"))
+        workflow.add_node("networkOpsManager",
+                          functools.partial(self.graph_node_agent, agent=networkOpsManager, name="networkOpsManager"))
+        workflow.add_node("dataAnalyst",
+                          functools.partial(self.graph_node_agent, agent=dataAnalyst, name="dataAnalyst"))
         # workflow.add_node("itOpsManager",
         #                   functools.partial(self.agent_node, agent=itOpsManager, name="itOpsManager"))
         # workflow.add_node("customerServiceManager",
@@ -87,15 +101,22 @@ class NetworkOperationsAnalysisAssistant:
         #                   functools.partial(self.agent_node, agent=executiveManagement, name="executiveManagement"))
         workflow.add_node("data_tool", self.graph_node_data_tool)
 
-        workflow.add_conditional_edges(
-            "wirelessNetworkEngineer",
-            self.graph_node_router,
-            {"continue": "networkOpsManager", "data_tool": "data_tool", "end": END},
-        )
+        # workflow.add_conditional_edges(
+        #     "wirelessNetworkEngineer",
+        #     self.graph_node_router,
+        #     {"continue": "networkOpsManager", "data_tool": "data_tool", "end": END},
+        # )
+
         workflow.add_conditional_edges(
             "networkOpsManager",
             self.graph_node_router,
-            {"continue": "wirelessNetworkEngineer", "data_tool": "data_tool", "end": END},
+            {"continue": "dataAnalyst", "data_tool": "data_tool", "end": END},
+        )
+
+        workflow.add_conditional_edges(
+            "dataAnalyst",
+            self.graph_node_router,
+            {"continue": "networkOpsManager", "data_tool": "data_tool", "end": END},
         )
 
         workflow.add_conditional_edges(
@@ -103,14 +124,14 @@ class NetworkOperationsAnalysisAssistant:
             lambda x: x["sender"],
             {
                 "networkOpsManager": "networkOpsManager",
-                "wirelessNetworkEngineer": "wirelessNetworkEngineer",
+                "dataAnalyst": "dataAnalyst",
                 # "itOpsManager": "itOpsManager",
                 # "customerServiceManager": "customerServiceManager",
                 # "qaTeam": "qaTeam",
                 # "executiveManagement": "executiveManagement",
             },
         )
-        workflow.set_entry_point("wirelessNetworkEngineer")
+        workflow.set_entry_point("networkOpsManager")
         self.graph = workflow.compile()
 
         # from IPython.display import Image
@@ -232,7 +253,7 @@ class NetworkOperationsAnalysisAssistant:
             [
                 (
                     "system",
-                    "您是一个AI助手，与其他助手合作。"
+                    "您是一个精通电信网络知识的AI助手，与其他助手合作。"
                     "使用提供的工具来逐步回答问题。"
                     "如果您无法完全回答，没关系，另一个使用不同工具的助手将继续帮助您完成。尽力取得进展。"
                     "如果您或其他任何助手有最终答案或可交付成果，"
@@ -249,13 +270,13 @@ class NetworkOperationsAnalysisAssistant:
     def run(self):
         agent_names = {
             "networkOpsManager": "网络运营经理",
-            "wirelessNetworkEngineer": "无线网络工程师",
+            "dataAnalyst": "数据分析师",
             "data_tool": "数据分析工具",
         }
         with open(f"network_operations_analysis_assistant_report_{self.model_name}.md", "w") as f:
             f.write("# 网络运维智能助手（POC）\n\n")
             f.write(f"> {self.model_name}\n\n")
-            f.write(f"```{self.graph.get_graph().draw_ascii()}\n```\n\n")
+            f.write(f"```\n{self.graph.get_graph().draw_ascii()}\n```\n\n")
             # f.write("![image-20240710141823753](assets/marketing_analysis_assistant.png)\n\n")
             f.write("## 多代理协商过程\n\n")
             for s in self.graph.stream(
@@ -263,14 +284,14 @@ class NetworkOperationsAnalysisAssistant:
                     "messages": [
                         HumanMessage(
                             content="利用事先准备好的 agent 和 tool 进行会话。"
-                            "会话的主题是'分析总结无线网络统计报表，挖掘数据信息。"
-                            "会话由 wirelessNetworkEngineer 开始。"
-                            "数据分析工具首先加载数据。根据数据生成无线网统计报表的简要分析总结"
-                            "数据分析工具对数据进行基本统计和相关关系分析。并提供基于分析结果的见解。"
-                            "接下来，将数据分析工具给出的分析结果和见解传达给 networkOpsManager，并进行简要分析总结。"
-                            "然后，wirelessNetworkEngineer 和 networkOpsManager 分析结果和见解进行交流，并共发现问题并制定有效措施。"
-                            "wirelessNetworkEngineer 和 networkOpsManager的会话总次数最多为20次。"
-                            "最后，networkOpsManager 在总结所有对话后，从总体概况、异常省份、资源和性能完成率、省份详细表现、文件传输即时率、性能合规率等方面给出综合性总结并结束对话。"
+                                    "会话的主题是'分析总结无线网络统计报表，挖掘数据信息。"
+                                    "会话由 networkOpsManager 开始。"
+                                    "数据分析工具首先加载数据。根据数据生成无线网统计报表的简要分析总结"
+                                    "数据分析工具对数据进行基本统计和相关关系分析。并提供基于分析结果的见解。"
+                                    "接下来，将数据分析工具给出的分析结果和见解传达给 networkOpsManager，并进行简要分析总结。"
+                                    "然后，networkOpsManager 和 dataAnalyst 分析结果和见解进行交流，并共发现问题并制定有效措施。"
+                                    "networkOpsManager 和 dataAnalyst。"
+                                    "最后，networkOpsManager 在总结所有对话后，从总体概况、异常省份、资源和性能完成率、省份详细表现、文件传输即时率、性能合规率等方面给出综合性总结并结束对话。"
                         )
                     ],
                 },

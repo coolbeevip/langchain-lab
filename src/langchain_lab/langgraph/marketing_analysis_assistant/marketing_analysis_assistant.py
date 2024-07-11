@@ -201,7 +201,7 @@ class MarketingAnalysisAssistant:
         with open(f"sales_analysis_report_{self.model_name}.md", "w") as f:
             f.write("# 市场部销售智能助手（POC）\n\n")
             f.write(f"> {self.model_name}\n\n")
-            f.write(f"```{self.graph.get_graph().draw_ascii()}\n```\n\n")
+            f.write(f"```\n{self.graph.get_graph().draw_ascii()}\n```\n\n")
             f.write("![image-20240710141823753](assets/marketing_analysis_assistant.png)\n\n")
             f.write("## 多代理协商过程\n\n")
             for s in self.graph.stream(
