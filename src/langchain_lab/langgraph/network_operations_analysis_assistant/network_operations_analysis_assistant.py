@@ -30,8 +30,7 @@ class NetworkOperationsAnalysisAssistant:
     def __init__(self, openai_api_base: str, openai_api_key: str, model_name: str, recursion_limit: int = 20):
         self.model_name = model_name
         self.recursion_limit = recursion_limit
-        self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key,
-                              temperature=0.7, request_timeout=600, streaming=True)
+        self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key, temperature=0.7, request_timeout=600, streaming=True)
         # 网络运营经理
         networkOpsManager = self.create_agent(
             self.llm,
@@ -76,11 +75,8 @@ class NetworkOperationsAnalysisAssistant:
 
         # 定义图
         workflow = StateGraph(AgentState)
-        workflow.add_node("wirelessNetworkEngineer",
-                          functools.partial(self.graph_node_agent, agent=wirelessNetworkEngineer,
-                                            name="wirelessNetworkEngineer"))
-        workflow.add_node("networkOpsManager",
-                          functools.partial(self.graph_node_agent, agent=networkOpsManager, name="networkOpsManager"))
+        workflow.add_node("wirelessNetworkEngineer", functools.partial(self.graph_node_agent, agent=wirelessNetworkEngineer, name="wirelessNetworkEngineer"))
+        workflow.add_node("networkOpsManager", functools.partial(self.graph_node_agent, agent=networkOpsManager, name="networkOpsManager"))
         # workflow.add_node("itOpsManager",
         #                   functools.partial(self.agent_node, agent=itOpsManager, name="itOpsManager"))
         # workflow.add_node("customerServiceManager",
@@ -137,6 +133,7 @@ class NetworkOperationsAnalysisAssistant:
         """This tool load data"""
         try:
             import pandas as pd
+
             data = pd.read_excel("./wireless_network_statistics_data.xlsx")
             result = data.to_markdown()
         except BaseException as e:
@@ -148,7 +145,6 @@ class NetworkOperationsAnalysisAssistant:
     def data_analysis_tool():
         """This tool enhances analysis by providing detailed statistics and visualizations."""
         try:
-
             data_response = []
             df = pd.read_excel("./wireless_network_statistics_data.xlsx")
 
@@ -158,7 +154,7 @@ class NetworkOperationsAnalysisAssistant:
             data_response.append(f"Basic statistics:\n\n{analysis_result.to_markdown()}")
 
             # 相关性统计
-            numerical_df = df.select_dtypes(include=['number'])
+            numerical_df = df.select_dtypes(include=["number"])
             correlation = numerical_df.corr()
             print(correlation)
             data_response.append(f"\nCorrelation matrix:\n\n{correlation.to_markdown()}")
@@ -234,8 +230,8 @@ class NetworkOperationsAnalysisAssistant:
                     "使用提供的工具来逐步回答问题。"
                     "如果您无法完全回答，没关系，另一个使用不同工具的助手将继续帮助您完成。尽力取得进展。"
                     "如果您或其他任何助手有最终答案或可交付成果，"
-                    "请在响应中加上\"FINAL ANSWER\"，这样团队就知道要停止了。"
-                    "您可以访问以下工具：{tool_names}。\n{system_message}"
+                    '请在响应中加上"FINAL ANSWER"，这样团队就知道要停止了。'
+                    "您可以访问以下工具：{tool_names}。\n{system_message}",
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -260,14 +256,14 @@ class NetworkOperationsAnalysisAssistant:
                     "messages": [
                         HumanMessage(
                             content="利用事先准备好的 agent 和 tool 进行会话。"
-                                    "会话的主题是'分析总结无线网络统计报表，挖掘数据信息。"
-                                    "会话由 wirelessNetworkEngineer 开始。"
-                                    "数据分析工具首先加载数据。根据数据生成无线网统计报表的简要分析总结"
-                                    "数据分析工具对数据进行基本统计和相关关系分析。并提供基于分析结果的见解。"
-                                    "接下来，将数据分析工具给出的分析结果和见解传达给 networkOpsManager，并进行简要分析总结。"
-                                    "然后，wirelessNetworkEngineer 和 networkOpsManager 分析结果和见解进行交流，并共发现问题并制定有效措施。"
-                                    "wirelessNetworkEngineer 和 networkOpsManager的会话总次数最多为20次。"
-                                    "最后，networkOpsManager 在总结所有对话后，从总体概况、异常省份、资源和性能完成率、省份详细表现、文件传输即时率、性能合规率等方面给出综合性总结并结束对话。"
+                            "会话的主题是'分析总结无线网络统计报表，挖掘数据信息。"
+                            "会话由 wirelessNetworkEngineer 开始。"
+                            "数据分析工具首先加载数据。根据数据生成无线网统计报表的简要分析总结"
+                            "数据分析工具对数据进行基本统计和相关关系分析。并提供基于分析结果的见解。"
+                            "接下来，将数据分析工具给出的分析结果和见解传达给 networkOpsManager，并进行简要分析总结。"
+                            "然后，wirelessNetworkEngineer 和 networkOpsManager 分析结果和见解进行交流，并共发现问题并制定有效措施。"
+                            "wirelessNetworkEngineer 和 networkOpsManager的会话总次数最多为20次。"
+                            "最后，networkOpsManager 在总结所有对话后，从总体概况、异常省份、资源和性能完成率、省份详细表现、文件传输即时率、性能合规率等方面给出综合性总结并结束对话。"
                         )
                     ],
                 },

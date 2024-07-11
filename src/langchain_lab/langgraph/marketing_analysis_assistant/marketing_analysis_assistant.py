@@ -27,8 +27,7 @@ class MarketingAnalysisAssistant:
     def __init__(self, openai_api_base: str, openai_api_key: str, model_name: str, recursion_limit: int = 20):
         self.model_name = model_name
         self.recursion_limit = recursion_limit
-        self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key,
-                              temperature=0.7, request_timeout=600, streaming=True)
+        self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key, temperature=0.7, request_timeout=600, streaming=True)
         # 定义智能体
         sales_staff = self.create_agent(
             self.llm,
@@ -45,10 +44,8 @@ class MarketingAnalysisAssistant:
         # 定义图
         workflow = StateGraph(AgentState)
 
-        workflow.add_node("sales_staff",
-                          functools.partial(self.graph_node_agent, agent=sales_staff, name="sales_staff"))
-        workflow.add_node("sales_manager",
-                          functools.partial(self.graph_node_agent, agent=sales_manager, name="sales_manager"))
+        workflow.add_node("sales_staff", functools.partial(self.graph_node_agent, agent=sales_staff, name="sales_staff"))
+        workflow.add_node("sales_manager", functools.partial(self.graph_node_agent, agent=sales_manager, name="sales_manager"))
         workflow.add_node("sales_tool", self.graph_node_sales_tool)
 
         workflow.add_conditional_edges(
@@ -211,15 +208,15 @@ class MarketingAnalysisAssistant:
                     "messages": [
                         HumanMessage(
                             content="利用事先准备好的agent和tool进行会话。"
-                                    "会话的主题是'调查我们公司商品A、B、C过去5年的数据，并制定本期的销售战略。"
-                                    "会话由sales_staff开始。"
-                                    "数据分析工具必须使用'./sales_data.csv'文件，并已表格形式输出数据。"
-                                    "数据分析工具将从'./sales_data.csv'文件中读取数据，进行基本统计和相关关系分析。"
-                                    "数据分析工具将输出文本形式的分析结果，并提供基于分析结果的见解。"
-                                    "接下来，将数据分析工具给出的分析结果和见解传达给sales_staff。"
-                                    "然后，sales_staff和sales_manager根据数据分析工具提供的分析结果和见解进行交流，并共同制定本期的销售策略。"
-                                    "sales_staff和sales_manager的会话总次数最多为20次。"
-                                    "最后，sales_manager在总结所有对话后，列出重要的要点并结束。"
+                            "会话的主题是'调查我们公司商品A、B、C过去5年的数据，并制定本期的销售战略。"
+                            "会话由sales_staff开始。"
+                            "数据分析工具必须使用'./sales_data.csv'文件，并已表格形式输出数据。"
+                            "数据分析工具将从'./sales_data.csv'文件中读取数据，进行基本统计和相关关系分析。"
+                            "数据分析工具将输出文本形式的分析结果，并提供基于分析结果的见解。"
+                            "接下来，将数据分析工具给出的分析结果和见解传达给sales_staff。"
+                            "然后，sales_staff和sales_manager根据数据分析工具提供的分析结果和见解进行交流，并共同制定本期的销售策略。"
+                            "sales_staff和sales_manager的会话总次数最多为20次。"
+                            "最后，sales_manager在总结所有对话后，列出重要的要点并结束。"
                         )
                     ],
                 },

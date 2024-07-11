@@ -33,6 +33,5 @@ class TestNetworkOperationsAnalysisAssistant(TestCase):
         print(correlation)
 
 
-
 if __name__ == "__main__":
     unittest.main()
