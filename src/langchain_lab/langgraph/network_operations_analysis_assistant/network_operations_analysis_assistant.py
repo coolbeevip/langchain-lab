@@ -16,6 +16,8 @@ from langgraph.graph import END, StateGraph
 from langgraph.prebuilt.tool_executor import ToolExecutor, ToolInvocation
 from typing_extensions import TypedDict
 
+from langchain_lab.langgraph.draw_plantuml import PlantUMLGraph
+
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
 
@@ -133,6 +135,7 @@ class NetworkOperationsAnalysisAssistant:
         )
         workflow.set_entry_point("networkOpsManager")
         self.graph = workflow.compile()
+        PlantUMLGraph(self.graph).print_plantuml()
 
         # from IPython.display import Image
         # import matplotlib.pyplot as plt
@@ -306,3 +309,4 @@ class NetworkOperationsAnalysisAssistant:
                                 f.write(f"{msg.additional_kwargs}\n")
                             f.write(msg.content)
                             f.write("\n\n")  # 结束
+
