@@ -53,12 +53,12 @@ class TestConference(TestCase):
         conference = Conference(llm=llm)
         conference.add_tool(load_sales_data_tool, data_analysis_tool)
         conference.add_agent(agent_id="Sales_Staff",
-                             agent_nickname="Sales_Staff",
+                             agent_name="Sales_Staff",
                              system_message="负责客户服务和产品、服务提案。回答客户问题，推荐适当的产品、服务，并记录商谈数据、销售预定数据到系统中。",
                              next_agent_name="Sales_Manager",
                              entry_point=True)
         conference.add_agent(agent_id="Sales_Manager",
-                             agent_nickname="Sales_Manager",
+                             agent_name="Sales_Manager",
                              system_message="负责团队管理和指导。设定销售目标，制定销售策略，监控绩效，并向团队成员提供反馈。",
                              next_agent_name="Sales_Staff")
         conference.build_graph()

@@ -5,7 +5,8 @@ import warnings
 from typing import Annotated, Sequence
 
 import pandas as pd
-from langchain_core.messages import BaseMessage, FunctionMessage, HumanMessage
+from langchain_community.chat_models import ChatTongyi
+from langchain_core.messages import BaseMessage, FunctionMessage, HumanMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnableSequence
 from langchain_core.tools import tool
@@ -32,8 +33,9 @@ class NetworkOperationsAnalysisAssistant:
     def __init__(self, openai_api_base: str, openai_api_key: str, model_name: str, recursion_limit: int = 20):
         self.model_name = model_name
         self.recursion_limit = recursion_limit
-        self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key,
-                              temperature=0.000000001, request_timeout=600, streaming=True)
+        self.llm = ChatTongyi(model_name=model_name, openai_api_base=openai_api_base, dashscope_api_key=openai_api_key)
+        # self.llm = ChatOpenAI(model_name=model_name, openai_api_base=openai_api_base, openai_api_key=openai_api_key,
+        #                      temperature=0.000000001, request_timeout=600, streaming=True)
 
         # 网络运营经理
         networkOpsManager = self.create_agent(
@@ -203,7 +205,7 @@ class NetworkOperationsAnalysisAssistant:
         if isinstance(result, FunctionMessage):
             pass
         else:
-            result = HumanMessage(**result.dict(exclude={"type", "name"}), name=name)
+            result = HumanMessage(**result.dict(exclude={"type", "name"}))
         return {
             "messages": [result],
             # 由于有严格的工作流程，可以追踪发件人。
@@ -216,7 +218,7 @@ class NetworkOperationsAnalysisAssistant:
         messages = state["messages"]
         last_message = messages[-1]
 
-        if "function_call" in last_message.additional_kwargs:
+        if "tool_calls" in last_message.additional_kwargs:
             return "data_tool"
 
         if "FINAL ANSWER" in last_message.content:
@@ -232,11 +234,13 @@ class NetworkOperationsAnalysisAssistant:
 
         last_message = messages[-1]
         # 从function_call创建ToolInvocation
-        tool_input = json.loads(last_message.additional_kwargs["function_call"]["arguments"])
+        # tool_input = json.loads(last_message.additional_kwargs["tool_calls"]["arguments"])
+        tool_input = json.loads(last_message.additional_kwargs["tool_calls"][0]["function"]["arguments"])
         # 传递单个参数
         if len(tool_input) == 1 and "__arg1" in tool_input:
             tool_input = next(iter(tool_input.values()))
-        tool_name = last_message.additional_kwargs["function_call"]["name"]
+        # tool_name = last_message.additional_kwargs["function_call"]["name"]
+        tool_name = last_message.additional_kwargs["tool_calls"][0]["function"]["name"]
         action = ToolInvocation(
             tool=tool_name,
             tool_input=tool_input,
@@ -245,7 +249,9 @@ class NetworkOperationsAnalysisAssistant:
         # 调用tool_executor，并返回响应。
         response = self.tool_executor.invoke(action)
         # 利用响应创建FunctionMessage。
-        function_message = FunctionMessage(content=f"{tool_name} response: {str(response)}", name=action.tool)
+        # function_message = FunctionMessage(content=f"{tool_name} response: {str(response)}", name=action.tool)
+        # function_message = ToolMessage(content=f"{tool_name} response: {str(response)}", tool_call_id=action.tool)
+        function_message = HumanMessage(content=f"{tool_name} response: {str(response)}")
         # 将现有列表添加
         return {"messages": [function_message]}
 
@@ -255,7 +261,7 @@ class NetworkOperationsAnalysisAssistant:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    "system",
+                    "user",
                     "您是一个精通电信网络知识的AI助手，与其他助手合作。"
                     "使用提供的工具来逐步回答问题。"
                     "如果您无法完全回答，没关系，另一个使用不同工具的助手将继续帮助您完成。尽力取得进展。"
@@ -268,7 +274,7 @@ class NetworkOperationsAnalysisAssistant:
         )
         prompt = prompt.partial(system_message=system_message)
         prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
-        return prompt | llm.bind_functions(functions)
+        return prompt | llm.bind_tools(functions)
 
     def run(self):
         agent_names = {

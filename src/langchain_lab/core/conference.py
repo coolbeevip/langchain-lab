@@ -15,17 +15,33 @@ from langgraph.graph import StateGraph
 from langgraph.graph.graph import CompiledGraph
 from langgraph.prebuilt import ToolInvocation, ToolExecutor
 
+lang_prompts = {
+    "en": {
+        "agent_system_prompt_prefix": ("You are a helpful AI assistant, collaborating with other assistants."
+                                       " Use the provided tools to progress towards answering the question."
+                                       " If you are unable to fully answer, that's OK,"
+                                       " another assistant with different tools "
+                                       " will help where you left off. Execute what you can to make progress."
+                                       " If you or any of the other assistants have the final answer or deliverable,"
+                                       " prefix your response with FINAL ANSWER so the team knows to stop.")
+    },
+    "zh": {
+        "agent_system_prompt_prefix": ("你是一个乐于助人的人工智能助手，正在与其他助手合作。"
+                                       "如果你无法完全回答，没关系，另一个助手会帮助你完成你未完成的任务。尽你所能取得进展。"
+                                       "如果你或任何其他助手有最终答案或可交付成果，"
+                                       "在你的回答前面加上 'FINAL ANSWER'，这样团队就知道该停下来了。")
+    }
+}
+
 
 class AgentRunnableSequence:
-    id: str
-    nickname: str
+    name: str
     next_agent_name: str
     agent: RunnableSequence
     entry_point: bool = False
 
-    def __init__(self, id, nickname, next_agent_name, agent, entry_point):
-        self.id = id
-        self.nickname = nickname
+    def __init__(self, name, next_agent_name, agent, entry_point):
+        self.name = name
         self.next_agent_name = next_agent_name
         self.agent = agent
         self.entry_point = entry_point
@@ -47,33 +63,38 @@ class AgentState(TypedDict):
 
 class Conference:
 
-    def __init__(self, llm: BaseChatModel = None, python_repl: bool = False):
+    def __init__(self, llm: BaseChatModel = None, python_repl: bool = False, lang: str = "en"):
         self.tool_executor: ToolExecutor = None
         self.graph: CompiledGraph = None
         self.agents: List[AgentRunnableSequence] = []
         self.tools: List[Tool] = []
         self.python_repl = python_repl
         self.default_llm = llm
+        if lang not in lang_prompts:
+            raise ValueError(f"Language {lang} not supported. Only support {', '.join(lang_prompts.keys())}.")
+        self.lang = lang
 
     def add_tool(self, *tools):
         for t in tools:
             self.tools.append(t)
         self.tool_executor = ToolExecutor(self.tools)
 
-    def add_agent(self, agent_id, agent_nickname: str, system_message: str, next_agent_name: str,
+    def add_agent(self, agent_name: str, system_message: str, next_agent_name: str,
                   entry_point: bool = False, llm: BaseChatModel = None):
         functions = [convert_to_openai_function(t) for t in self.tools]
+
+        system_content = lang_prompts[self.lang]["agent_system_prompt_prefix"]
+
+        if len(self.tools) > 0:
+            system_content = system_content + " You have access to the following tools: {tool_names}."
+
+        system_content = system_content + "\n{system_message}"
+
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    "You are a helpful AI assistant, collaborating with other assistants."
-                    " Use the provided tools to progress towards answering the question."
-                    " If you are unable to fully answer, that's OK, another assistant with different tools "
-                    " will help where you left off. Execute what you can to make progress."
-                    " If you or any of the other assistants have the final answer or deliverable,"
-                    " prefix your response with FINAL ANSWER so the team knows to stop."
-                    " You have access to the following tools: {tool_names}.\n{system_message}",
+                    system_content
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -89,8 +110,7 @@ class Conference:
             raise ValueError("No language model provided.")
 
         self.agents.append(
-            AgentRunnableSequence(id=agent_id,
-                                  nickname=agent_nickname,
+            AgentRunnableSequence(name=agent_name,
                                   next_agent_name=next_agent_name,
                                   agent=agent,
                                   entry_point=entry_point))
@@ -100,34 +120,41 @@ class Conference:
 
         # Add Agents
         for agent in self.agents:
-            workflow.add_node(agent.nickname,
-                              functools.partial(self.graph_node_agent, agent=agent.agent, name=agent.nickname))
+            workflow.add_node(agent.name,
+                              functools.partial(self.graph_node_agent, agent=agent.agent, name=agent.name))
 
         # Add ToolKit
-        workflow.add_node("ToolKit", self.graph_node_tool_kit)
+        if len(self.tools) > 0:
+            workflow.add_node("ToolKit", self.graph_node_tool_kit)
 
         # Add Edges
         for agent in self.agents:
+            path_map = {"continue": agent.next_agent_name, "end": END}
+            if len(self.tools) > 0:
+                path_map["ToolKit"] = "ToolKit"
             workflow.add_conditional_edges(
-                agent.nickname,
+                agent.name,
                 self.graph_node_router,
-                {"continue": agent.next_agent_name, "ToolKit": "ToolKit", "end": END},
+                path_map
             )
 
-        path_map = {agent.nickname: agent.next_agent_name for agent in self.agents}
-        workflow.add_conditional_edges(
-            source="ToolKit",
-            path=lambda x: x["sender"],
-            path_map=path_map
-        )
+        if len(self.tools) > 0:
+            path_map = {agent.name: agent.next_agent_name for agent in self.agents}
+            workflow.add_conditional_edges(
+                source="ToolKit",
+                path=lambda x: x["sender"],
+                path_map=path_map
+            )
+
         entry_point_agents = [agent for agent in self.agents if agent.entry_point]
         if len(entry_point_agents) > 1:
             raise ValueError("Only one agent can be an entry point.")
         elif len(entry_point_agents) == 0:
             raise ValueError("At least one agent must be an entry point.")
         else:
-            workflow.set_entry_point(entry_point_agents[0].nickname)
+            workflow.set_entry_point(entry_point_agents[0].name)
             self.graph = workflow.compile()
+            self.graph.get_graph().print_ascii()
 
     def graph_node_tool_kit(self, state: AgentState):
         last_message = state["messages"][-1]
@@ -185,8 +212,8 @@ class Conference:
             return f"Failed to execute. Error: {repr(e)}"
         return f"Successfully executed:\n```python\n{code}\n```\nStdout: {result}"
 
-    def invoke(self, humanMessage: HumanMessage, recursion_limit: int = 20):
-        output_role = [agent.nickname for agent in self.agents]
+    def invoke(self, humanMessage: HumanMessage, recursion_limit: int = 5):
+        output_role = [agent.name for agent in self.agents]
         output_role.append("ToolKit")
         for s in self.graph.stream(
             {
