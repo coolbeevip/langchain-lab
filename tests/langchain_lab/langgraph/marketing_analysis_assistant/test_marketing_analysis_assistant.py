@@ -50,30 +50,28 @@ def data_analysis_tool():
 class TestConference(TestCase):
 
     def test_conference(self):
-        conference = Conference(llm=llm)
+        conference = Conference(llm=llm, python_repl=True, lang="zh")
         conference.add_tool(load_sales_data_tool, data_analysis_tool)
-        conference.add_agent(agent_id="Sales_Staff",
-                             agent_name="Sales_Staff",
-                             system_message="负责客户服务和产品、服务提案。回答客户问题，推荐适当的产品、服务，并记录商谈数据、销售预定数据到系统中。",
-                             next_agent_name="Sales_Manager",
+        conference.add_agent(agent_name="销售助理",
+                             system_message="你是销售助理，负责客户服务和产品、服务提案。回答客户问题，推荐适当的产品、服务，并记录商谈数据、销售预定数据到系统中。",
+                             next_agent_name="销售经理",
                              entry_point=True)
-        conference.add_agent(agent_id="Sales_Manager",
-                             agent_name="Sales_Manager",
-                             system_message="负责团队管理和指导。设定销售目标，制定销售策略，监控绩效，并向团队成员提供反馈。",
-                             next_agent_name="Sales_Staff")
+        conference.add_agent(agent_name="销售经理",
+                             system_message="你是销售经理，负责团队管理和指导。设定销售目标，制定销售策略，监控绩效，并向团队成员提供反馈。",
+                             next_agent_name="销售助理")
         conference.build_graph()
         conversation = conference.invoke(humanMessage=HumanMessage(
-                        content="利用事先准备好的agent和tool进行会话。"
+                        content="利用事先准备好的 agent 和 tool 进行会话。"
                                 "会话的主题是'调查我们公司商品A、B、C过去5年的数据，并制定本期的销售战略。"
-                                "会话由sales_staff开始。"
+                                "会话由销售助理开始。"
                                 "数据分析工具必须使用'./sales_data.csv'文件，并已表格形式输出数据。"
                                 "数据分析工具将从'./sales_data.csv'文件中读取数据，进行基本统计和相关关系分析。"
                                 "数据分析工具将输出文本形式的分析结果，并提供基于分析结果的见解。"
-                                "接下来，将数据分析工具给出的分析结果和见解传达给sales_staff。"
-                                "然后，sales_staff和sales_manager根据数据分析工具提供的分析结果和见解进行交流，并共同制定本期的销售策略。"
-                                "sales_staff和sales_manager的会话总次数最多为20次。"
-                                "最后，sales_manager在总结所有对话后，列出重要的要点并结束。"
-                    ))
+                                "接下来，将数据分析工具给出的分析结果和见解传达给销售助理。"
+                                "然后，销售助理和销售经理根据数据分析工具提供的分析结果和见解进行交流，并共同制定本期的销售策略。"
+                                "销售助理和销售经理的会话总次数最多为20次。"
+                                "最后，销售经理在总结所有对话后，列出重要的要点并结束。"
+                    ), recursion_limit=20)
 
         with open(f"marketing_analysis_assistant_{llm.model_name}.md", "w") as file:
             for message in conversation:

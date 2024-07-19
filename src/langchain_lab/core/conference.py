@@ -194,7 +194,7 @@ class Conference:
         if isinstance(result, FunctionMessage):
             pass
         else:
-            result = HumanMessage(**result.dict(exclude={"type", "name"}), name=name)
+            result = HumanMessage(**result.dict(exclude={"type", "name"}))
         return {
             "messages": [result],
             "sender": name

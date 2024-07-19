@@ -166,7 +166,7 @@ class NetworkOperationsAnalysisAssistant:
         try:
             import pandas as pd
 
-            data = pd.read_excel("./wireless_network_statistics_data.xlsx")
+            data = pd.read_excel("./data.xlsx")
             result = data.to_markdown()
         except BaseException as e:
             return f"Failed to execute. Error: {repr(e)}"
@@ -178,7 +178,7 @@ class NetworkOperationsAnalysisAssistant:
         """This tool enhances analysis by providing detailed statistics and visualizations."""
         try:
             data_response = []
-            df = pd.read_excel("./wireless_network_statistics_data.xlsx")
+            df = pd.read_excel("./data.xlsx")
 
             # 描述性统计
             analysis_result = df.describe()
